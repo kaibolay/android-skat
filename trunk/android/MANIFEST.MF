@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Main-Class: de.bolay.skat.online.client.ServerConnectionTest
+
+Name: de/bolay/skat/android/
+Sealed: true
+
+Name: de/bolay/skat/online/client/
+Sealed: true
+
+Name: com/skatonline/client/
+Sealed: true
+
+Name: de/bolay/skat/online/client/observers/
+Sealed: true
+
