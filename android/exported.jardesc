@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="/home/kbolay/skat.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/Skat/exported.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=SkatRPC/test-src&lt;de.bolay.skat.online.client{ServerConnectionTest.java[ServerConnectionTest" manifestLocation="/Skat/MANIFEST.MF" manifestVersion="1.0" reuseManifest="false" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal>
+                <package handleIdentifier="=Skat/src&lt;de.bolay.skat.android"/>
+                <package handleIdentifier="=SkatRPC/src&lt;com.skatonline.client"/>
+                <package handleIdentifier="=SkatRPC/src&lt;de.bolay.skat.online.client"/>
+                <package handleIdentifier="=SkatRPC/src&lt;de.bolay.skat.online.client.observers"/>
+                <package handleIdentifier="=SkatRPC/test-src&lt;de.bolay.skat.online.client"/>
+            </packagesToSeal>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=SunMiscBase64/src"/>
+        <javaElement handleIdentifier="=Skat"/>
+        <javaElement handleIdentifier="=SkatRPC/src"/>
+        <folder path="/SkatRPC/lib"/>
+        <javaElement handleIdentifier="=SkatRPC/test-src"/>
+    </selectedElements>
+    <fatjar builder="org.eclipse.jdt.ui.plain_jar_builder" launchConfig=""/>
+</jardesc>
