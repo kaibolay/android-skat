@@ -16,9 +16,9 @@ import android.util.Log;
 import com.skatonline.client.ServerConnectionImpl;
 
 import de.bolay.pubsub.Observers;
-import de.bolay.skat.online.Ranking;
-import de.bolay.skat.online.client.observers.ConnectionObserver;
-import de.bolay.skat.online.client.observers.MainLobbyObserver;
+import de.bolay.skat.net.Ranking;
+import de.bolay.skat.net.client.observers.ConnectionObserver;
+import de.bolay.skat.net.client.observers.MainLobbyObserver;
 
 public class ServerConnection extends Service {
   public static final String LOGIN = "LOGIN";
@@ -28,7 +28,7 @@ public class ServerConnection extends Service {
   private volatile Looper connectionLooper;
   private volatile ServiceHandler connectionHandler;
 
-  public de.bolay.skat.online.client.ServerConnection connection;
+  public de.bolay.skat.net.client.ServerConnection connection;
 
   private class SimpleConnectionObserver implements ConnectionObserver {
     Ranking myRanking;
