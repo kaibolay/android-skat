@@ -2,6 +2,7 @@ package de.bolay.skat;
 
 import static java.util.Collections.shuffle;
 import static java.util.Collections.sort;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -15,6 +16,30 @@ import org.junit.Test;
 import de.bolay.skat.Card.Rank;
 
 public class CardTest {
+
+  @Test
+  public void testOfSuit() {
+    for (Card.Suit suit : Card.Suit.values()) {
+      Set<Card> cards = Card.ofSuit(suit);
+      assertSame("Number of cards in " + suit,
+          Card.NUM_RANKS, cards.size());
+      for (Card card : cards) {
+        assertSame(card + " in suit", suit, card.getSuit());
+      }
+    }
+  }
+
+  @Test
+  public void testOfRank() {
+    for (Card.Rank rank : Card.Rank.values()) {
+      Set<Card> cards = Card.ofRank(rank);
+      assertSame("Number of cards of " + rank,
+          Card.NUM_SUITS, cards.size());
+      for (Card card : cards) {
+        assertSame(card + " of rank", rank, card.getRank());
+      }
+    }
+  }
 
   private void assertSymmetric(Comparator<Card> comp) {
     List<Card> deck = new LinkedList<Card>(Arrays.asList(Card.values()));
