@@ -19,7 +19,6 @@ public class Observers {
     observers.remove(observer);
   }
 
-
   public <T extends Observer> void notify(Class<T> observerType,
       Notifier<T> notifier) {
     for (Observer observer : observers) {
