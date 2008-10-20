@@ -1,7 +1,6 @@
 package de.bolay.skat;
 
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Set;
 
 public enum Card {
@@ -41,7 +40,17 @@ public enum Card {
   public static final int NUM_CARDS = Card.values().length;
 
   public enum Rank {
-    SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
+    SEVEN(0), EIGHT(0), NINE(0), TEN(10), JACK(2), QUEEN(3), KING(4), ACE(11);
+    
+    private final int value;
+   
+    Rank(int value) {
+      this.value = value;
+    }
+    
+    public int getValue() {
+      return value;
+    }
   }
 
   public static final int NUM_RANKS = Rank.values().length;
@@ -69,7 +78,7 @@ public enum Card {
   }
 
   public static Set<Card> ofSuit(Suit suit) {
-    Set<Card> ofSuit = new HashSet<Card>(NUM_RANKS);
+    Set<Card> ofSuit = EnumSet.noneOf(Card.class);
     for (Card card : values()) {
       if (card.getSuit() == suit) {
         ofSuit.add(card);
@@ -79,56 +88,12 @@ public enum Card {
   }
 
   public static Set<Card> ofRank(Rank rank) {
-    Set<Card> ofRank = new HashSet<Card>(NUM_SUITS);
+    Set<Card> ofRank = EnumSet.noneOf(Card.class);
     for (Card card : Card.values()) {
       if (card.getRank() == rank) {
         ofRank.add(card);
       }
     }
     return ofRank;
-  }
-
-  public static Comparator<Card> getSuitGameComparator(final Suit trump) {
-    return new Comparator<Card>() {
-        public int compare(Card c1, Card c2) {
-          if (c1.rank == Rank.JACK) {
-            if (c2.rank == Rank.JACK) {
-              return c1.suit.compareTo(c2.suit);
-            } else {
-              return 1; // c1 trumps
-            }
-          }
-          if (c1.suit == trump) {
-            if (c2.rank == Rank.JACK) {
-              return -1; // c2 trumps
-            }
-            if (c2.suit == trump) {
-              return c1.compareTo(c2);
-            } else {
-              return 1; // c1 trumps
-            }
-          }
-          if (c2.rank == Rank.JACK || c2.suit == trump) {
-            return -1; // c2 trumps
-          }
-          return c1.compareTo(c2);
-        }
-    };
-  }
-
-  public static Comparator<Card> getGrandGameComparator() {
-    return getSuitGameComparator(null);
-  }
-
-  public static Comparator<Card> getNullGameComparator() {
-    return new Comparator<Card>() {
-        public int compare(Card c1, Card c2) {
-          int r = c1.suit.compareTo(c2.suit);
-          if (r != 0) {
-            return r;
-          }
-          return c1.rank.compareTo(c2.rank);
-        }
-    };
   }
 }

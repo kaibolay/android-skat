@@ -1,12 +1,17 @@
 package de.bolay.skat.net.client;
 
-public interface ServerConnection {
-  /** Check on the status of the connection */
-  boolean isUp();
+import de.bolay.pubsub.Observer;
 
+public interface ServerConnection {
+  /** add an observer */
+  void addObserver(Observer observer);
+
+  /** Open connection (after installing observers */
+  void open();
+  
   /** Close connection (by shutting down handler) */
   void close();
 
-  /** (Re-)Log in */
-  void login(String username, String password);
+  /** Check on the status of the connection */
+  boolean isUp();
 }

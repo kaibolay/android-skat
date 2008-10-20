@@ -4,8 +4,13 @@ import de.bolay.pubsub.Observer;
 import de.bolay.skat.net.Ranking;
 
 public interface MainLobbyObserver extends Observer {
+  public interface MainLobby {
+    void sendChatMessage(String test);
+  }
+
+  void entered(MainLobby mainLobby);
+  void serverNotificationReceived(String html);
   void playerJoined(String name, Ranking ranking);
   void playerLeft(String name);
-  void serverNotificationReceived(String html);
   void chatMessageReceived(String sender, String text);
 }
