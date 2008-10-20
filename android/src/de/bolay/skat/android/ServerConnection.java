@@ -13,6 +13,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.skatonline.client.Server;
 import com.skatonline.client.ServerConnectionImpl;
 
 import de.bolay.skat.net.Ranking;
@@ -105,7 +106,7 @@ public class ServerConnection extends Service {
 
   @Override
   public void onCreate() {
-    connection = ServerConnectionImpl.Server.PREMIUM.getConnection();
+    connection = ServerConnectionImpl.getConnection(Server.PREMIUM);
     connection.addObserver(new SimpleConnectionObserver());
     connection.addObserver(new SimpleMainLobbyObserver());
 
