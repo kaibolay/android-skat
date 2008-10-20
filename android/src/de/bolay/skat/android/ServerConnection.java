@@ -15,10 +15,11 @@ import android.util.Log;
 
 import com.skatonline.client.ServerConnectionImpl;
 
-import de.bolay.pubsub.Observers;
 import de.bolay.skat.net.Ranking;
 import de.bolay.skat.net.client.observers.ConnectionObserver;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
+import de.bolay.skat.net.client.observers.PendingLoginObserver.LoginStatus;
+import de.bolay.skat.net.client.observers.PendingLoginObserver.PendingLogin;
 
 public class ServerConnection extends Service {
   public static final String LOGIN = "LOGIN";
@@ -29,6 +30,9 @@ public class ServerConnection extends Service {
   private volatile ServiceHandler connectionHandler;
 
   public de.bolay.skat.net.client.ServerConnection connection;
+
+  public String username;
+  public String password;
 
   private class SimpleConnectionObserver implements ConnectionObserver {
     Ranking myRanking;
@@ -44,6 +48,11 @@ public class ServerConnection extends Service {
     public void rankingReceived(Ranking ranking) {
       System.out.println("ConnectionObserver.rankingReceived(" + ranking + ")");
       myRanking = ranking;
+    }
+
+    public void pendingLogin(PendingLogin pendingLogin) {
+      pendingLogin.attemptLogin(username, password);
+      Log.i("pendingLogin", "sent it"); 
     }
   }
 
@@ -70,6 +79,11 @@ public class ServerConnection extends Service {
       Log.i(LOG_TAG, "MainLobbyObserver.chatMessageReceived(\"" + sender
           + "\", \"" + text + "\")");
     }
+
+    public void entered(MainLobby mailLobby) {
+      // TODO Auto-generated method stub
+
+    }
   }
 
   private final class ServiceHandler extends Handler {
@@ -81,24 +95,19 @@ public class ServerConnection extends Service {
     @Override
     public void handleMessage(Message msg) {
       Bundle arguments = (Bundle) msg.obj;
-      String username = arguments.getString("username");
-      String password = arguments.getString("password");
+      username = arguments.getString("username");
+      password = arguments.getString("password");
 
-      Log.i("ServiceStartArguments",
-          "Username: " + username + " Password: " + password);
-
-      connection.login(username, password);
-      Log.i("ServiceStartArguments", "Done with #" + msg.arg1);
+      Log.i("ServiceStartArguments", "msg1: " + msg.arg1 
+          + " Username: " + username + " Password: " + password);
     }
   }
 
   @Override
   public void onCreate() {
-    Observers observers = new Observers();
-    observers.add(new SimpleConnectionObserver());
-    observers.add(new SimpleMainLobbyObserver());
-    connection = ServerConnectionImpl.Server.PREMIUM.getConnection(observers);
-
+    connection = ServerConnectionImpl.Server.PREMIUM.getConnection();
+    connection.addObserver(new SimpleConnectionObserver());
+    connection.addObserver(new SimpleMainLobbyObserver());
 
     HandlerThread thread = new HandlerThread("ServerConnection");
     thread.start();
@@ -119,13 +128,13 @@ public class ServerConnection extends Service {
 
   @Override
   public void onStart(Intent intent, int startId) {
-      Log.i("ServiceStartArguments",
-              "Starting #" + startId + ": " + intent.getExtras());
+    Log.i("ServiceStartArguments",
+        "Starting #" + startId + ": " + intent.getExtras());
 
-      Message msg = connectionHandler.obtainMessage();
-      msg.arg1 = startId;
-      msg.obj = intent.getExtras();
-      connectionHandler.sendMessage(msg);
-      Log.i("ServiceStartArguments", "Sending: " + msg);
+    Message msg = connectionHandler.obtainMessage();
+    msg.arg1 = startId;
+    msg.obj = intent.getExtras();
+    connectionHandler.sendMessage(msg);
+    Log.i("ServiceStartArguments", "Sending: " + msg);
   }
 }
