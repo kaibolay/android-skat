@@ -41,13 +41,13 @@ public enum Card {
 
   public enum Rank {
     SEVEN(0), EIGHT(0), NINE(0), TEN(10), JACK(2), QUEEN(3), KING(4), ACE(11);
-    
+
     private final int value;
-   
+
     Rank(int value) {
       this.value = value;
     }
-    
+
     public int getValue() {
       return value;
     }

@@ -2,7 +2,6 @@ package de.bolay.skat;
 
 import static java.util.Collections.shuffle;
 import static java.util.Collections.sort;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -86,7 +85,7 @@ public class GameTest {
       }
     }
   }
-  
+
   @Test
   public void testCardComperators() {
     for (Game game : Game.values()) {
@@ -103,11 +102,5 @@ public class GameTest {
         assertTens(comperator, true);
       }
     }
-  }
-  
-  @Test
-  public void testBids() {
-    assertEquals("Lowest bid", Game.BIDS.first(), 18);
-    assertEquals("Highest bid", Game.BIDS.last(), 264);
   }
 }
