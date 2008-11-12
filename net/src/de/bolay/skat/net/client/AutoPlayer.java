@@ -8,22 +8,23 @@ import java.util.Random;
 import java.util.Set;
 
 import de.bolay.skat.Card;
-import de.bolay.skat.Game.Position;
+import de.bolay.skat.Game;
+import de.bolay.skat.Level;
+import de.bolay.skat.Position;
 import de.bolay.skat.net.Ranking;
-import de.bolay.skat.net.client.observers.ChallengingBiddingObserver;
+import de.bolay.skat.net.client.observers.BiddingObserver;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
-import de.bolay.skat.net.client.observers.PassiveBiddingObserver;
 import de.bolay.skat.net.client.observers.PendingLoginObserver;
-import de.bolay.skat.net.client.observers.RespondingBiddingObserver;
 import de.bolay.skat.net.client.observers.TableLobbyObserver;
+import de.bolay.skat.net.client.observers.TrickObserver;
 
 public class AutoPlayer {
   private static final long WAIT = 3 * 1000;
   private static final long TIMEOUT = 60 * 1000;
-  
+
   private final ServerConnection connection;
-  
-  public AutoPlayer(ServerConnection connection, 
+
+  public AutoPlayer(ServerConnection connection,
       String username, String password) {
     this.connection = connection;
 
@@ -31,11 +32,10 @@ public class AutoPlayer {
         username, password));
     connection.addObserver(new SimpleMainLobbyObserver());
     connection.addObserver(new SimpleTableLobbyObserver());
-    connection.addObserver(new SimplePassiveBiddingObserver());
-    connection.addObserver(new SimpleChallengingBiddingObserver());
-    connection.addObserver(new SimpleRespondingBiddingObserver());
+    connection.addObserver(new SimpleBiddingObserver());
+    connection.addObserver(new SimpleTrickObserver());
   }
-  
+
   public void play() {
     connection.open();
     for (int i = 0; i < TIMEOUT/WAIT; i++) {
@@ -50,10 +50,10 @@ public class AutoPlayer {
       }
     }
   }
-  
-  private static class SimplePendingLoginObserver 
+
+  private static class SimplePendingLoginObserver
       implements PendingLoginObserver {
-    
+
     private final String username;
     private final String password;
 
@@ -72,7 +72,7 @@ public class AutoPlayer {
     }
 
     public void loginSucceeded(Ranking ranking) {
-      System.out.println("PendingLoginObserver.loginSucceeded(" 
+      System.out.println("PendingLoginObserver.loginSucceeded("
           + ranking + ")");
     }
 
@@ -135,7 +135,7 @@ public class AutoPlayer {
       assertTrue("more than two other players (joined: " + playersJoined
           + ", left: " + playersLeft + ")", numPlayers < 3);
     }
-    
+
     public void playerJoined(String name) {
       System.out.println("TableLobbyObserver.playerJoined(\"" + name + "\")");
       assertTrue("same player (" + name + ") joined table twice",
@@ -158,32 +158,22 @@ public class AutoPlayer {
       serverNotificationsReceived++;
     }
 
-    public void gotCards(Set<Card> hand, Position position) {
-      System.out.println("gotCards(" + hand + ", " + position + ")");
+    public void gotCards(Set<Card> hand, Position position,
+        String leftOpponent, String rightOpponent) {
+      System.out.println("gotCards(" + hand + ", " + position + ", \""
+          + leftOpponent + "\" (playing " + Position.before(position) + "), \""
+          + rightOpponent + "\" (playing " + Position.after(position) + "))");
     }
   }
 
-  private static class SimplePassiveBiddingObserver 
-      implements PassiveBiddingObserver {
-    public void hearBid(String playerName, int value) {
-      System.out.println("hearBid(\"" + playerName + "\", " + value + ")");
-    }
-
-    public void hearResponse(String playerName, boolean accepted) {
-      System.out.println("hearResponse(\"" + playerName + "\", "
-          + accepted + ")");
-    }
-  }
-
-  private static class SimpleChallengingBiddingObserver 
-      implements ChallengingBiddingObserver {
+  private static class SimpleBiddingObserver implements BiddingObserver {
     Random random = new Random();
 
-    public void bidSolicited(String playerName, int nextValue, Bid bid) {
-      System.out.print("bidSolicited (\"" + playerName + "\", >= "
+    public void bidSolicited(String listenerName, int nextValue, Bid bid) {
+      System.out.print("bidSolicited(\"" + listenerName + "\", "
           + nextValue + "): ");
-      if (random.nextInt(4) == 0) {
-        // 25% chance to bid
+      if (random.nextInt(4) != 0) {
+        // 75% chance to bid
         System.out.println("bidding!");
         bid.bid(nextValue);
       } else {
@@ -191,23 +181,86 @@ public class AutoPlayer {
         bid.pass();
       }
     }
-  }
-  
-  private static class SimpleRespondingBiddingObserver 
-      implements RespondingBiddingObserver {
-    Random random = new Random();
 
-    public void offerReceived(String playerName, int value, Response response) {
-      System.out.print("offerReceived(\"" + playerName + "\", " + value
+    public void biddingEnded(String soloPlayer) {
+      System.out.println("skatPickedUp(\"" + soloPlayer + "\")");
+    }
+
+    public void gameAnnounced(String soloPlayer, int bidValue, Game game,
+        Level bidLevel) {
+      System.out.println("gameAnnounced(\"" + soloPlayer + "\", "
+          + bidValue + ", " + game + ", " + bidLevel + ")");
+    }
+
+    public void gotSkat(Set<Card> skat, AnnounceGame announceGame) {
+      System.out.println("gotSkat(" + skat + ")");
+      announceGame.announceGame(skat, Game.GRAND, Level.REGULAR);
+    }
+
+    public void heardAccept(String announcerName, int value) {
+      System.out.println("heardAccept(\"" + announcerName + "\", "
+          + value + ")");
+    }
+
+    public void heardBid(String challengerName, String listenerName,
+        int value) {
+      System.out.println("heardBid(\"" + challengerName + "\", \""
+          + challengerName + "\", " + value + ")");
+    }
+
+    public void heardPass(String announcerName, int value) {
+      System.out.println("heardPass(\"" + announcerName + "\", "
+          + value + ")");
+    }
+
+    public void repsonseSolicited(String challengerName, int value,
+        Response response) {
+      System.out.print("responseSolicited(\"" + challengerName + "\", " + value
           + "): ");
-      if (random.nextInt(4) == 0) {
-        // 25% chance to accept
+      if (random.nextInt(4) != 0) {
+        // 75% chance to accept
         System.out.println("accepting!");
         response.accept();
       } else {
         System.out.println("pass");
         response.pass();
       }
+    }
+
+    public void skatPickedUp(String soloPlayer) {
+      System.out.println("skatPickedUp(\"" + soloPlayer + "\")");
+    }
+
+    public void wonBidding(int bidValue, PickSkat pickSkat) {
+      System.out.print("wonBidding(" + bidValue + "): ");
+      if (random.nextInt(4) != 0) {
+        // 75% chance to pick up skat
+        System.out.println("picking up");
+        pickSkat.pickupSkat();
+      } else {
+        System.out.println("playing hand");
+        pickSkat.announceHandGame(Game.NULL, Level.HAND);
+      }
+    }
+  }
+
+  public class SimpleTrickObserver implements TrickObserver {
+
+    public void cardPlayed(String playerName, Card card) {
+      System.out.println("cardPlayed(\"" + playerName + "\", " + card + ")");
+    }
+
+    public void cardSolicited(Turn yourTurn) {
+      yourTurn.playCard(null); // TODO
+    }
+
+    public void gameOver(boolean won, int points, int score) {
+      System.out.println("gameOver(" + won + ", " + points + ", "
+          + score + ")");
+    }
+
+    public void newTrick(Position position) {
+      System.out.println("newTrick(" + position + ")");
     }
   }
 }

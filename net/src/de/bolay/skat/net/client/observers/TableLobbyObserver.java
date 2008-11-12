@@ -4,7 +4,7 @@ import java.util.Set;
 
 import de.bolay.pubsub.Observer;
 import de.bolay.skat.Card;
-import de.bolay.skat.Game.Position;
+import de.bolay.skat.Position;
 
 public interface TableLobbyObserver extends Observer {
   public interface TableLobby {
@@ -17,5 +17,6 @@ public interface TableLobbyObserver extends Observer {
   void playerLeft(String name);
   void chatMessageReceived(String sender, String text);
   
-  void gotCards(Set<Card> hand, Position position);
+  void gotCards(Set<Card> hand, Position position, 
+      String leftOpponent, String rightOpponent);
 }
