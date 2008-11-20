@@ -7,10 +7,10 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import org.junit.Test;
+
+import de.bolay.util.EnumSetCombinations;
 
 public class LevelTest {
   private final static EnumSet<Level> VALID_FOR_NOT_NULL =
@@ -80,39 +80,6 @@ public class LevelTest {
 
   private enum BidFlag {
     NULL, HAND, SCHNEIDER_ANNOUNCED, SCHWARZ_ANNOUNCED, OUVERT;
-
-    public static Iterable<EnumSet<BidFlag>> getAllCombinations() {
-      return new Iterable<EnumSet<BidFlag>>() {
-          public Iterator<EnumSet<BidFlag>> iterator() {
-            return new Iterator<EnumSet<BidFlag>>() {
-                int current = 0;
-                int max = (1 << values().length) - 1;
-
-                public boolean hasNext() {
-                  return current < max;
-                }
-
-                public EnumSet<BidFlag> next() {
-                  current++;
-                  if (current > max) {
-                    throw new NoSuchElementException();
-                  }
-                  EnumSet<BidFlag> set = EnumSet.noneOf(BidFlag.class);
-                  for (BidFlag flag : values()) {
-                    if ((current & (1 << flag.ordinal())) != 0) {
-                      set.add(flag);
-                    }
-                  }
-                  return set;
-                }
-
-                public void remove() {
-                  throw new UnsupportedOperationException();
-                }
-            };
-          }
-      };
-    }
   }
 
   private void addIfPossible(EnumSet<Level> levels,
@@ -134,7 +101,8 @@ public class LevelTest {
   @Test
   public void testConvertCoverage() {
     EnumSet<Level> levels = EnumSet.noneOf(Level.class);
-    for (EnumSet<BidFlag> bidFlags : BidFlag.getAllCombinations()) {
+    for (EnumSet<BidFlag> bidFlags :
+        new EnumSetCombinations<BidFlag>(BidFlag.class)) {
       addIfPossible(levels, bidFlags);
     }
     assertEquals("all levels covered",
