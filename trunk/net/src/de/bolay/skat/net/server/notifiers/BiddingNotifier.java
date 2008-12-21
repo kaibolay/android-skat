@@ -2,6 +2,8 @@ package de.bolay.skat.net.server.notifiers;
 
 import java.util.Set;
 
+import com.sun.istack.internal.Nullable;
+
 import de.bolay.pubsub.Notifier;
 import de.bolay.pubsub.Observers;
 import de.bolay.skat.Card;
@@ -40,8 +42,8 @@ public class BiddingNotifier  {
     });
   }
 
-  public void solicitResponse(final String challengerName, final int value,
-      final Response response) {
+  public void solicitResponse(@Nullable final String challengerName,
+      final int value, final Response response) {
     observers.notify(BiddingObserver.class,
         new Notifier<BiddingObserver>() {
           public void notify(BiddingObserver observer) {

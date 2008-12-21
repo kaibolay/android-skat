@@ -8,7 +8,7 @@ import de.bolay.skat.Position;
 
 public interface TableLobbyObserver extends Observer {
   public interface TableLobby {
-    void sendChatMessage(String test);
+    void sendChatMessage(String text);
   }
 
   void entered(TableLobby tableLobby);
@@ -16,7 +16,7 @@ public interface TableLobbyObserver extends Observer {
   void playerJoined(String name);
   void playerLeft(String name);
   void chatMessageReceived(String sender, String text);
-  
-  void gotCards(Set<Card> hand, Position position, 
+
+  void gotCards(Set<Card> hand, Position position,
       String leftOpponent, String rightOpponent);
 }

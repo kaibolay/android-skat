@@ -41,11 +41,11 @@ public class TrickNotifier  {
     });
   }
 
-  public void gameOver(final boolean won, final int point, final int score) {
+  public void gameOver(final boolean won, final int points, final int score) {
     observers.notify(TrickObserver.class,
         new Notifier<TrickObserver>() {
           public void notify(TrickObserver observer) {
-            observer.gameOver(won, point, score);
+            observer.gameOver(won, points, score);
           }
     });
   }

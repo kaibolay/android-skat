@@ -11,8 +11,7 @@ public class PendingLoginNotifier  {
   private final Observers observers;
   private final PendingLogin pendingLogin;
 
-  public PendingLoginNotifier(Observers observers,
-      final PendingLogin pendingLogin) {
+  public PendingLoginNotifier(Observers observers, PendingLogin pendingLogin) {
     this.observers = observers;
     this.pendingLogin = pendingLogin;
   }
