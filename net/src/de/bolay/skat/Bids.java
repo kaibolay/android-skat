@@ -4,6 +4,25 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Bids {
+  private  int current;
+
+  public Bids() {
+      current = first();
+  }
+
+  public int current() {
+    return current;
+  }
+
+  public int next() {
+    current = nextBid(current);
+    return current;
+  }
+
+  public boolean isLast() {
+    return current == BIDS.last();
+  }
+
   private final static SortedSet<Integer> BIDS = new TreeSet<Integer>();
 
   public static int first() {

@@ -5,7 +5,7 @@ import de.bolay.skat.net.Ranking;
 
 public interface MainLobbyObserver extends Observer {
   public interface MainLobby {
-    void sendChatMessage(String test);
+    void sendChatMessage(String text);
   }
 
   void entered(MainLobby mainLobby);

@@ -8,26 +8,31 @@ import de.bolay.skat.net.client.observers.MainLobbyObserver.MainLobby;
 
 public class MainLobbyNotifier  {
   private final Observers observers;
+  private final MainLobby mainLobby;
 
-  public MainLobbyNotifier(Observers observers, final MainLobby mainLobby) {
+  public MainLobbyNotifier(Observers observers, MainLobby mainLobby) {
     this.observers = observers;
-    observers.notify(MainLobbyObserver.class, 
+    this.mainLobby = mainLobby;
+  }
+
+  public void entered() {
+    observers.notify(MainLobbyObserver.class,
         new Notifier<MainLobbyObserver>() {
           public void notify(MainLobbyObserver observer) {
             observer.entered(mainLobby);
           }
-    });      
+    });
   }
-    
+
   public void serverNotification(final String html) {
-    observers.notify(MainLobbyObserver.class, 
+    observers.notify(MainLobbyObserver.class,
         new Notifier<MainLobbyObserver>() {
           public void notify(MainLobbyObserver observer) {
             observer.serverNotificationReceived(html);
           }
     });
   }
-    
+
   public void chatMessage(final String sender, final String text) {
     observers.notify(MainLobbyObserver.class,
         new Notifier<MainLobbyObserver>() {
@@ -36,7 +41,7 @@ public class MainLobbyNotifier  {
           }
     });
   }
-    
+
   public void playerJoined(final String name, final Ranking ranking) {
     observers.notify(MainLobbyObserver.class,
         new Notifier<MainLobbyObserver>() {
@@ -45,7 +50,7 @@ public class MainLobbyNotifier  {
           }
     });
   }
-    
+
   public void playerLeft(final String name) {
     observers.notify(MainLobbyObserver.class,
         new Notifier<MainLobbyObserver>() {
