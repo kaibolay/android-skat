@@ -11,11 +11,12 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import com.skatonline.client.Server;
 import com.skatonline.client.ServerConnectionImpl;
 
+import de.bolay.log.AndroidLogger;
+import de.bolay.log.Logger;
 import de.bolay.skat.net.Ranking;
 import de.bolay.skat.net.client.observers.ConnectionObserver;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
@@ -23,9 +24,11 @@ import de.bolay.skat.net.client.observers.PendingLoginObserver.LoginStatus;
 import de.bolay.skat.net.client.observers.PendingLoginObserver.PendingLogin;
 
 public class ServerConnection extends Service {
+  private static final Logger.Factory LOG_FACTORY =
+      new AndroidLogger.Factory();
+  private static final Logger LOG = LOG_FACTORY.getLogger(
+      ServerConnection.class.getSimpleName());
   public static final String LOGIN = "LOGIN";
-
-  public static final String LOG_TAG = "ServerConnection";
 
   private volatile Looper connectionLooper;
   private volatile ServiceHandler connectionHandler;
@@ -39,21 +42,21 @@ public class ServerConnection extends Service {
     Ranking myRanking;
 
     public void disconnected() {
-      Log.i(LOG_TAG, "ConnectionObserver.disconnected()");
+      LOG.info("ConnectionObserver.disconnected()");
     }
 
     public void loginAttempted(LoginStatus status) {
-      Log.i(LOG_TAG, "ConnectionObserver.loginAttempted(" + status + ")");
+      LOG.info("ConnectionObserver.loginAttempted(%s)", status);
     }
 
     public void rankingReceived(Ranking ranking) {
-      System.out.println("ConnectionObserver.rankingReceived(" + ranking + ")");
+      LOG.info("ConnectionObserver.rankingReceived(%s)", ranking);
       myRanking = ranking;
     }
 
     public void pendingLogin(PendingLogin pendingLogin) {
       pendingLogin.attemptLogin(username, password);
-      Log.i("pendingLogin", "sent it"); 
+      LOG.info("sent pendingLogin");
     }
   }
 
@@ -61,24 +64,23 @@ public class ServerConnection extends Service {
     Map<String, Ranking> scoreboard = new HashMap<String, Ranking>();
 
     public void serverNotificationReceived(String html) {
-      Log.i(LOG_TAG,
-          "MainLobbyObserver.serverNotificationReceived(\"" + html + "\")");
+      LOG.info(
+          "MainLobbyObserver.serverNotificationReceived(\"%s\")", html);
     }
 
     public void playerJoined(String name, Ranking ranking) {
-      Log.i(LOG_TAG, "MainLobbyObserver.playerJoined(" + name + ", "
-          + ranking + ")");
+      LOG.info("MainLobbyObserver.playerJoined(\"%s\", %s)", name, ranking);
       scoreboard.put(name, ranking);
     }
 
     public void playerLeft(String name) {
-      Log.i(LOG_TAG, "MainLobbyObserver.playerLeft(" + name + ")");
+      LOG.info("MainLobbyObserver.playerLeft(\"%s\", %s)", name);
       scoreboard.remove(name);
     }
 
     public void chatMessageReceived(String sender, String text) {
-      Log.i(LOG_TAG, "MainLobbyObserver.chatMessageReceived(\"" + sender
-          + "\", \"" + text + "\")");
+      LOG.info("MainLobbyObserver.chatMessageReceived(\"%s\", \"%s\")",
+          sender, text);
     }
 
     public void entered(MainLobby mailLobby) {
@@ -99,14 +101,15 @@ public class ServerConnection extends Service {
       username = arguments.getString("username");
       password = arguments.getString("password");
 
-      Log.i("ServiceStartArguments", "msg1: " + msg.arg1 
-          + " Username: " + username + " Password: " + password);
+      LOG.info("ServiceStartArguments: msg1: %s, Username: %s, Password: %s",
+          msg.arg1, username, password);
     }
   }
 
   @Override
   public void onCreate() {
-    connection = ServerConnectionImpl.getConnection(Server.PREMIUM);
+    connection = ServerConnectionImpl.getConnection(
+        LOG_FACTORY, Server.PREMIUM);
     connection.addObserver(new SimpleConnectionObserver());
     connection.addObserver(new SimpleMainLobbyObserver());
 
@@ -129,13 +132,12 @@ public class ServerConnection extends Service {
 
   @Override
   public void onStart(Intent intent, int startId) {
-    Log.i("ServiceStartArguments",
-        "Starting #" + startId + ": " + intent.getExtras());
+    LOG.info("Starting #%d: %s", startId, intent.getExtras());
 
     Message msg = connectionHandler.obtainMessage();
     msg.arg1 = startId;
     msg.obj = intent.getExtras();
     connectionHandler.sendMessage(msg);
-    Log.i("ServiceStartArguments", "Sending: " + msg);
+    LOG.info("Sending: %s", msg);
   }
 }

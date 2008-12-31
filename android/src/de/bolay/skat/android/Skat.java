@@ -20,8 +20,10 @@ public class Skat extends Activity {
 
   private OnClickListener loginListener = new OnClickListener() {
     public void onClick(View v) {
-      String username = ((EditText) findViewById(R.id.username_field)).getText().toString();
-      String password = ((EditText) findViewById(R.id.password_field)).getText().toString();
+      String username = ((EditText) findViewById(R.id.username_field))
+          .getText().toString();
+      String password = ((EditText) findViewById(R.id.password_field))
+          .getText().toString();
       Intent loginData = new Intent(Skat.this, ServerConnection.class)
           .setAction(ServerConnection.LOGIN)
           .putExtra("username", username)
