@@ -10,8 +10,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.sun.istack.internal.Nullable;
+import com.google.common.base.Nullable;
 
+import de.bolay.log.Logger;
 import de.bolay.pubsub.Observers;
 import de.bolay.skat.Bids;
 import de.bolay.skat.Card;
@@ -31,27 +32,29 @@ class FakeBidding {
   private final Set<Position> stillBidding;
   private final Bids bids;
 
-  public FakeBidding(Observers observers, String playerName, Deal deal) {
+  public FakeBidding(Logger.Factory logFactory, Observers observers,
+      String playerName, Deal deal) {
     this.deal = deal;
     notifiers = new HashMap<Position, BiddingNotifier>();
     stillBidding = new HashSet<Position>(Arrays.asList(Position.values()));
     bids = new Bids();
 
-    setupNotifiers(observers, playerName);
+    setupNotifiers(logFactory, observers, playerName);
   }
 
   /**
    * Set notifiers appropriate for each position (the passed-in for the player,
    * two others for "Omas" which bid automatically).
    */
-  private void setupNotifiers(Observers observers, String playerName) {
+  private void setupNotifiers(Logger.Factory logFactory, Observers observers,
+      String playerName) {
     for (Position position : Position.values()) {
       Observers positionObservers;
       if (deal.getName(position).equals(playerName)) {
         positionObservers = observers;
       } else {
         positionObservers = new Observers(); // Oma
-        positionObservers.add(new AutoBiddingObserver());
+        positionObservers.add(new AutoBiddingObserver(logFactory));
       }
       notifiers.put(position, new BiddingNotifier(positionObservers));
     }

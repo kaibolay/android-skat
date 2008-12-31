@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import de.bolay.log.Logger;
 import de.bolay.pubsub.Observers;
 import de.bolay.skat.Card;
 import de.bolay.skat.Position;
@@ -16,27 +17,28 @@ public class FakeTrick {
   private final Deal deal;
   private final BiddingResult biddingResult;
 
-  FakeTrick(Observers observers, String playerName, Deal deal,
-      BiddingResult biddingResult) {
+  FakeTrick(Logger.Factory logFactory, Observers observers, String playerName,
+      Deal deal, BiddingResult biddingResult) {
     this.deal = deal;
     this.biddingResult = biddingResult;
     notifiers = new HashMap<Position, TrickNotifier>();
 
-    setupNotifiers(observers, playerName);
+    setupNotifiers(logFactory, observers, playerName);
   }
 
   /**
    * Set notifiers appropriate for each position (the passed-in for the player,
    * two others for "Omas" which play automatically).
    */
-  private void setupNotifiers(Observers observers, String playerName) {
+  private void setupNotifiers(Logger.Factory logFactory, Observers observers,
+      String playerName) {
     for (Position position : Position.values()) {
       Observers trickObservers;
       if (deal.getName(position).equals(playerName)) {
         trickObservers = observers;
       } else {
         trickObservers = new Observers(); // Oma
-        trickObservers.add(new AutoTrickObserver());
+        trickObservers.add(new AutoTrickObserver(logFactory));
       }
       notifiers.put(position, new TrickNotifier(trickObservers));
     }

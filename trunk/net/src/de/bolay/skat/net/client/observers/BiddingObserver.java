@@ -2,7 +2,7 @@ package de.bolay.skat.net.client.observers;
 
 import java.util.Set;
 
-import com.sun.istack.internal.Nullable;
+import com.google.common.base.Nullable;
 
 import de.bolay.pubsub.Observer;
 import de.bolay.skat.Card;

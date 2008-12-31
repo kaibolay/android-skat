@@ -2,7 +2,7 @@ package de.bolay.skat.net.server.notifiers;
 
 import java.util.Set;
 
-import com.sun.istack.internal.Nullable;
+import com.google.common.base.Nullable;
 
 import de.bolay.pubsub.Notifier;
 import de.bolay.pubsub.Observers;

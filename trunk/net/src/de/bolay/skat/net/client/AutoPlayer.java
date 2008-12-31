@@ -1,6 +1,6 @@
 package de.bolay.skat.net.client;
 
-import static org.junit.Assert.fail;
+import de.bolay.log.Logger;
 import de.bolay.skat.net.auto.AutoBiddingObserver;
 import de.bolay.skat.net.auto.AutoMainLobbyObserver;
 import de.bolay.skat.net.auto.AutoPendingLoginObserver;
@@ -12,31 +12,35 @@ public class AutoPlayer {
   private static final long TIMEOUT = 60 * 1000;
 
   private final ServerConnection connection;
+  private final Logger log;
 
-  public AutoPlayer(ServerConnection connection,
+  public AutoPlayer(Logger.Factory logFactory, ServerConnection connection,
       String username, String password) {
+    log = logFactory.getLogger(AutoPlayer.class.getName());
     this.connection = connection;
 
-    connection.addObserver(new AutoPendingLoginObserver(
+    connection.addObserver(new AutoPendingLoginObserver(logFactory,
         username, password));
-    connection.addObserver(new AutoMainLobbyObserver());
-    connection.addObserver(new AutoTableLobbyObserver());
-    connection.addObserver(new AutoBiddingObserver());
-    connection.addObserver(new AutoTrickObserver());
+    connection.addObserver(new AutoMainLobbyObserver(logFactory));
+    connection.addObserver(new AutoTableLobbyObserver(logFactory));
+    connection.addObserver(new AutoBiddingObserver(logFactory));
+    connection.addObserver(new AutoTrickObserver(logFactory));
   }
 
   public void play() {
+    log.info("opening connection");
     connection.open();
     for (int i = 0; i < TIMEOUT/WAIT; i++) {
       if (!connection.isUp()) {
-        fail("Connection died");
+        throw new IllegalStateException("connection died");
       }
-      System.out.println("live connection in iteration #" + i + " sleeping...");
+      log.debug("live connection in iteration #" + i + " sleeping...");
       try {
         Thread.sleep(WAIT);
       } catch (InterruptedException ie) {
-        fail(ie.getMessage());
+        throw new RuntimeException(ie);
       }
     }
+    log.info("done");
   }
 }
