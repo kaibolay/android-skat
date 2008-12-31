@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.bolay.log.Logger;
 import de.bolay.skat.Card;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.TableLobbyObserver;
@@ -17,14 +18,20 @@ public class AutoTableLobbyObserver implements TableLobbyObserver {
   private int playersLeft;
   private int serverNotificationsReceived;
 
+  private final Logger log;
+
+  public AutoTableLobbyObserver(Logger.Factory logFactory) {
+    log = logFactory.getLogger(AutoTableLobbyObserver.class.getName());
+  }
+
   public void entered(TableLobby tableLobby) {
-    System.out.println("TableLobbyObserver.entered()");
+    log.info("TableLobbyObserver.entered()");
     tableLobby.sendChatMessage(TABLE_LOBBY_GREETING);
   }
 
   public void chatMessageReceived(String sender, String text) {
-    System.out.println("TableLobbyObserver.chatMessageReceived(\"" + sender
-        + "\", \"" + text + "\")");
+    log.info("TableLobbyObserver.chatMessageReceived(\"%s\", \"%s\")",
+        sender, text);
   }
 
   private void assertTablePopulation() {
@@ -36,7 +43,7 @@ public class AutoTableLobbyObserver implements TableLobbyObserver {
   }
 
   public void playerJoined(String name) {
-    System.out.println("TableLobbyObserver.playerJoined(\"" + name + "\")");
+    log.info("TableLobbyObserver.playerJoined(\"%s\")", name);
     assertTrue("same player (" + name + ") joined table twice",
         players.add(name));
     playersJoined++;
@@ -44,7 +51,7 @@ public class AutoTableLobbyObserver implements TableLobbyObserver {
   }
 
   public void playerLeft(String name) {
-    System.out.println("TableLobbyObserver.playerLeft(\"" + name + "\")");
+    log.info("TableLobbyObserver.playerLeft(\"%s\")", name);
     assertTrue("unknown player (" + name + ") left table",
         players.remove(name));
     playersLeft++;
@@ -52,15 +59,15 @@ public class AutoTableLobbyObserver implements TableLobbyObserver {
   }
 
   public void serverNotificationReceived(String html) {
-    System.out.println(
-        "MainLobbyObserver.serverNotificationReceived(\"" + html + "\")");
+    log.info("MainLobbyObserver.serverNotificationReceived(\"%s\")", html);
     serverNotificationsReceived++;
   }
 
   public void gotCards(Set<Card> hand, Position position,
       String leftOpponent, String rightOpponent) {
-    System.out.println("gotCards(" + hand + ", " + position + ", \""
-        + leftOpponent + "\" (playing " + position.before() + "), \""
-        + rightOpponent + "\" (playing " + position.after() + "))");
+    log.info("gotCards(%s, %s, \"%s\" (playing %s), \"%s\" (playing %s))",
+        hand, position,
+        leftOpponent, position.before(),
+        rightOpponent, position.after());
   }
 }

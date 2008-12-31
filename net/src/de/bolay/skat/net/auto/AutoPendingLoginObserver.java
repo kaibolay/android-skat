@@ -1,34 +1,37 @@
 package de.bolay.skat.net.auto;
 
-import static org.junit.Assert.fail;
+import de.bolay.log.Logger;
 import de.bolay.skat.net.Ranking;
 import de.bolay.skat.net.client.observers.PendingLoginObserver;
 
 public class AutoPendingLoginObserver implements PendingLoginObserver {
-
+  private final Logger log;
   private final String username;
   private final String password;
 
-  public AutoPendingLoginObserver (String username, String password) {
+  public AutoPendingLoginObserver(Logger.Factory logFactory,
+      String username, String password) {
+    log = logFactory.getLogger(AutoPendingLoginObserver.class.getName());
     this.username = username;
     this.password = password;
   }
 
   public void pendingLogin(PendingLogin pendingLogin) {
-    System.out.println("PendingLoginObserver.pendingLogin()");
+    log.info("PendingLoginObserver.pendingLogin()");
     pendingLogin.attemptLogin(username, password);
   }
 
   public void loginFailed(LoginStatus status, PendingLogin pendingLogin) {
-    fail("login failed: " + status);
+    log.error("PendingLoginObserver.loginFailed(%s)", pendingLogin);
+    throw new IllegalStateException();
   }
 
   public void loginSucceeded(Ranking ranking) {
-    System.out.println("PendingLoginObserver.loginSucceeded("
-        + ranking + ")");
+    log.info("PendingLoginObserver.loginSucceeded(%s)", ranking);
   }
 
   public void serverBusy() {
-    fail("Server busy");
+    log.error("PendingLoginObserver.serverBusy()");
+    throw new IllegalStateException();
   }
 }

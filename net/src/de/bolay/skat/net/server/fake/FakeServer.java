@@ -1,5 +1,7 @@
 package de.bolay.skat.net.server.fake;
 
+import de.bolay.log.ConsoleLogger;
+import de.bolay.log.Logger;
 import de.bolay.pubsub.Observer;
 import de.bolay.pubsub.Observers;
 import de.bolay.skat.Position;
@@ -9,7 +11,8 @@ import de.bolay.skat.net.server.notifiers.ConnectionNotifier;
 public class FakeServer implements ServerConnection, Runnable {
   private static final String FAKE_PASSWORD = "fake";
   private static final String[] OMA_NAMES = {"Oma #1", "Oma #2"};
-  final Observers observers;
+  private final Logger.Factory logFactory;
+  private final Observers observers;
   private boolean isUp;
 
   public void run() {
@@ -24,15 +27,15 @@ public class FakeServer implements ServerConnection, Runnable {
           break;
         }
         BiddingResult biddingResult =
-            new FakeBidding(observers, playerName, deal).handle();
+            new FakeBidding(logFactory, observers, playerName, deal).handle();
         if (!isUp()) {
           break;
         }
         if (biddingResult != null) {
           Position playCard = Position.FORE_HAND;
           while (isUp() && playCard != null) {
-            playCard = new FakeTrick(observers, playerName, deal, biddingResult)
-                .handle(playCard);
+            playCard = new FakeTrick(logFactory, observers, playerName, deal,
+                biddingResult).handle(playCard);
           }
         }
         deal.next();
@@ -42,7 +45,8 @@ public class FakeServer implements ServerConnection, Runnable {
   }
 
   public FakeServer() {
-    this.observers = new Observers();
+    logFactory = new ConsoleLogger.Factory(Logger.Level.DEBUG);
+    observers = new Observers();
     isUp = false;
   }
 
