@@ -9,6 +9,7 @@ import de.bolay.pubsub.Observers;
 import de.bolay.skat.Card;
 import de.bolay.skat.Game;
 import de.bolay.skat.Level;
+import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.BiddingObserver;
 import de.bolay.skat.net.client.observers.BiddingObserver.AnnounceGame;
 import de.bolay.skat.net.client.observers.BiddingObserver.Bid;
@@ -20,6 +21,16 @@ public class BiddingNotifier  {
 
   public BiddingNotifier(Observers observers) {
     this.observers = observers;
+  }
+
+  public void gotCards(final Position position, final Set<Card> hand,
+      final String leftOpponent, final String rightOpponent) {
+    observers.notify(BiddingObserver.class,
+        new Notifier<BiddingObserver>() {
+          public void notify(BiddingObserver observer) {
+            observer.gotCards(hand, position, leftOpponent, rightOpponent);
+          }
+        });
   }
 
   public void solicitBid(final String listenerName, final int nextValue,

@@ -35,6 +35,7 @@ public class ConsoleLogger extends AbstractLogger {
     appendTag(printStream);
     printStream.append(String.format(formatString, args));
     appendThrowable(printStream, throwable);
+    printStream.println();
     printStream.flush();
   }
 

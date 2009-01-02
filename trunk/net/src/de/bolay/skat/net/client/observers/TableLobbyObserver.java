@@ -1,10 +1,6 @@
 package de.bolay.skat.net.client.observers;
 
-import java.util.Set;
-
 import de.bolay.pubsub.Observer;
-import de.bolay.skat.Card;
-import de.bolay.skat.Position;
 
 public interface TableLobbyObserver extends Observer {
   public interface TableLobby {
@@ -16,7 +12,4 @@ public interface TableLobbyObserver extends Observer {
   void playerJoined(String name);
   void playerLeft(String name);
   void chatMessageReceived(String sender, String text);
-
-  void gotCards(Set<Card> hand, Position position,
-      String leftOpponent, String rightOpponent);
 }

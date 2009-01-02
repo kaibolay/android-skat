@@ -8,6 +8,7 @@ import de.bolay.pubsub.Observer;
 import de.bolay.skat.Card;
 import de.bolay.skat.Game;
 import de.bolay.skat.Level;
+import de.bolay.skat.Position;
 
 public interface BiddingObserver extends Observer {
   public interface Bid {
@@ -28,6 +29,9 @@ public interface BiddingObserver extends Observer {
   public interface AnnounceGame {
     void announceGame(Set<Card> skat, Game game, Level bidLevel);
   }
+
+  void gotCards(Set<Card> hand, Position position,
+      String leftOpponent, String rightOpponent);
 
   void bidSolicited(String listenerName, int nextValue, Bid bid);
   void heardBid(String challengerName, String listenerName, int value);

@@ -6,19 +6,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.bolay.log.Logger;
-import de.bolay.skat.Card;
-import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.TableLobbyObserver;
 
 public class AutoTableLobbyObserver implements TableLobbyObserver {
   private static final String TABLE_LOBBY_GREETING = "This is a test. I am"
       + " just a program. Do not play with me!";
-  Set<String> players = new HashSet<String>();
+
+  private final Logger log;
+
+  private Set<String> players = new HashSet<String>();
   private int playersJoined;
   private int playersLeft;
   private int serverNotificationsReceived;
-
-  private final Logger log;
 
   public AutoTableLobbyObserver(Logger.Factory logFactory) {
     log = logFactory.getLogger(AutoTableLobbyObserver.class.getName());
@@ -61,13 +60,5 @@ public class AutoTableLobbyObserver implements TableLobbyObserver {
   public void serverNotificationReceived(String html) {
     log.info("MainLobbyObserver.serverNotificationReceived(\"%s\")", html);
     serverNotificationsReceived++;
-  }
-
-  public void gotCards(Set<Card> hand, Position position,
-      String leftOpponent, String rightOpponent) {
-    log.info("gotCards(%s, %s, \"%s\" (playing %s), \"%s\" (playing %s))",
-        hand, position,
-        leftOpponent, position.before(),
-        rightOpponent, position.after());
   }
 }

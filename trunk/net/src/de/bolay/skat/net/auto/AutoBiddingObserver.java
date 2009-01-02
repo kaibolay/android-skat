@@ -1,20 +1,36 @@
 package de.bolay.skat.net.auto;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import de.bolay.log.Logger;
 import de.bolay.skat.Card;
 import de.bolay.skat.Game;
 import de.bolay.skat.Level;
+import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.BiddingObserver;
 
 public class AutoBiddingObserver implements BiddingObserver {
   private final Logger log;
-  private Random random = new Random();
+  private final Random random = new Random();
+
+  private Set<Card> cards;
 
   public AutoBiddingObserver(Logger.Factory logFactory) {
     log = logFactory.getLogger(AutoBiddingObserver.class.getName());
+  }
+
+  public void gotCards(Set<Card> hand, Position position,
+      String leftOpponent, String rightOpponent) {
+    log.info("gotCards(%s, %s, \"%s\" (playing %s), \"%s\" (playing %s))",
+        hand, position,
+        leftOpponent, position.before(),
+        rightOpponent, position.after());
+    cards = Sets.newHashSet(hand); // make mutable copy
   }
 
   public void bidSolicited(String listenerName, int nextValue, Bid bid) {
@@ -29,7 +45,7 @@ public class AutoBiddingObserver implements BiddingObserver {
   }
 
   public void biddingEnded(String soloPlayer) {
-    log.info("skatPickedUp(\"%s\")", soloPlayer);
+    log.info("biddingEnded(\"%s\")", soloPlayer);
   }
 
   public void gameAnnounced(String soloPlayer, int bidValue, Game game,
@@ -40,7 +56,18 @@ public class AutoBiddingObserver implements BiddingObserver {
 
   public void gotSkat(Set<Card> skat, AnnounceGame announceGame) {
     log.info("gotSkat(%s)", skat);
-    announceGame.announceGame(skat, Game.GRAND, Level.REGULAR);
+
+    // add skat to cards and discard two random cards
+    cards.addAll(skat);
+    List<Card> fullHand = Lists.newLinkedList(cards);
+    Set<Card> discard = Sets.newHashSet();
+    while (discard.size() < 2) {
+      Card card = fullHand.remove(random.nextInt(fullHand.size()));
+      cards.remove(card);
+      discard.add(card);
+    }
+    log.info("discarding: ", discard);
+    announceGame.announceGame(discard, Game.GRAND, Level.REGULAR);
   }
 
   public void heardAccept(String announcerName, int value) {
