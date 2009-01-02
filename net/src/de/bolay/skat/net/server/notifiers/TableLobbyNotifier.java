@@ -1,11 +1,7 @@
 package de.bolay.skat.net.server.notifiers;
 
-import java.util.Set;
-
 import de.bolay.pubsub.Notifier;
 import de.bolay.pubsub.Observers;
-import de.bolay.skat.Card;
-import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.TableLobbyObserver;
 import de.bolay.skat.net.client.observers.TableLobbyObserver.TableLobby;
 
@@ -61,15 +57,5 @@ public class TableLobbyNotifier  {
             observer.playerLeft(name);
           }
     });
-  }
-
-  public void gotCards(final Position position, final Set<Card> hand,
-      final String leftOpponent, final String rightOpponent) {
-    observers.notify(TableLobbyObserver.class,
-        new Notifier<TableLobbyObserver>() {
-          public void notify(TableLobbyObserver observer) {
-            observer.gotCards(hand, position, leftOpponent, rightOpponent);
-          }
-        });
   }
 }

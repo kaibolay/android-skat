@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Nullable;
+import com.google.common.collect.ImmutableSet;
 
 import de.bolay.log.Logger;
 import de.bolay.pubsub.Observers;
@@ -50,13 +51,20 @@ class FakeBidding {
       String playerName) {
     for (Position position : Position.values()) {
       Observers positionObservers;
-      if (deal.getName(position).equals(playerName)) {
+      boolean isPlayer = deal.getName(position).equals(playerName);
+      if (isPlayer) {
         positionObservers = observers;
       } else {
         positionObservers = new Observers(); // Oma
         positionObservers.add(new AutoBiddingObserver(logFactory));
       }
-      notifiers.put(position, new BiddingNotifier(positionObservers));
+      BiddingNotifier notifier = new BiddingNotifier(positionObservers);
+      notifiers.put(position, notifier);
+      if (isPlayer) {
+        notifier.gotCards(position,
+            ImmutableSet.copyOf(deal.getCards(playerName)),
+            deal.getName(position.after()), deal.getName(position.before()));
+      }
     }
   }
 
@@ -195,26 +203,27 @@ class FakeBidding {
       }
 
       public void pickupSkat() {
-        soloNotifier.gotSkat(deal.getSkat(), new AnnounceGame() {
+        // modify hand...
+        final Set<Card> cards = deal.getCards(result.soloPosition);
+        cards.addAll(deal.getSkat());
+        soloNotifier.gotSkat(ImmutableSet.copyOf(deal.getSkat()),
+            new AnnounceGame() {
 
-          public void announceGame(Set<Card> skat, Game game, Level level) {
-            if (level.isHand(game.isNull())) {
-              throw new IllegalArgumentException("Picked up skat, but"
-                  + " announcing hand with " + level + " for " + game);
-            }
-            // modify hand...
-            Set<Card> cards = deal.getCards(result.soloPosition);
-            cards.addAll(deal.getSkat());
-            cards.removeAll(skat);
-            if (skat.size() != 2 || cards.size() != 10) {
-              throw new IllegalArgumentException("Weird skat return: "
-                  + skat + " - resulted in cards: " + cards);
-            }
-            result.game = game;
-            result.level = level;
-            result.skat = skat;
-          }
-        });
+              public void announceGame(Set<Card> skat, Game game, Level level) {
+                if (level.isHand(game.isNull())) {
+                  throw new IllegalArgumentException("Picked up skat, but"
+                      + " announcing hand with " + level + " for " + game);
+                }
+                cards.removeAll(skat);
+                if (skat.size() != 2 || cards.size() != 10) {
+                  throw new IllegalArgumentException("Weird skat return: "
+                      + skat + " - resulted in cards: " + cards);
+                }
+                result.game = game;
+                result.level = level;
+                result.skat = skat;
+              }
+          });
       }
     });
     return result;

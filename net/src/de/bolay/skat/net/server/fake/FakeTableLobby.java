@@ -24,10 +24,6 @@ class FakeTableLobby implements TableLobby {
         join(name);
       }
     }
-    Position playerPosition = deal.getPosition(playerName);
-    notifier.gotCards(playerPosition, deal.getCards(playerName),
-        deal.getName(playerPosition.after()),
-        deal.getName(playerPosition.before()));
   }
 
   private void join(String omaName) {
