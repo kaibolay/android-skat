@@ -2,36 +2,15 @@ package de.bolay.skat.net.server.fake;
 
 import static java.util.Collections.shuffle;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import de.bolay.skat.Card;
 import de.bolay.skat.Position;
 
 class Deal {
-  private static class Player {
-    private final String name;
-    private final Set<Card> cards;
-
-    Player(String name, Set<Card> cards) {
-      this.name = name;
-      this.cards = cards;
-    }
-
-    String getName() {
-      return name;
-    }
-
-    Set<Card> getCards() {
-      return cards;
-    }
-  }
-
   private static class Deck {
     private final List<Card> cards = Arrays.asList(Card.values());
     private int picked = 0;
@@ -58,93 +37,57 @@ class Deal {
     }
   }
 
-  private static class RandomPositions {
-    private List<Position> positions = new ArrayList<Position>(
-        Arrays.asList(Position.values()));
-
-    RandomPositions() {
-      shuffle(positions);
-    }
-
-    Position pick() {
-      return positions.remove(positions.size()-1);
-    }
-
-    void assertNoneRemaining() {
-      if (positions.size() != 0) {
-        throw new IllegalStateException("Still have " + positions.size());
-      }
-    }
-  }
-
-  private final Map<Position, Player> players;
-  private final Map<String, Position> positions;
+  private Table table;
   private Set<Card> skat;
 
-  Deal(String player1, String player2, String player3) {
-    players = new HashMap<Position, Player>();
-    positions = new HashMap<String, Position>();
-
-    Deck deck = new Deck();
-    RandomPositions randomPositions = new RandomPositions();
-
-    seat(player1, randomPositions.pick(), deck);
-    seat(player2, randomPositions.pick(), deck);
-    seat(player3, randomPositions.pick(), deck);
-    if (positions.size() != 3 || players.size() != 3) {
-      throw new IllegalArgumentException("Duplicate player names? "
-          + player1 + ", " + player2 + ", " + player3 + " - with: "
-          + positions + " and " + players);
-    }
-    randomPositions.assertNoneRemaining();
-    skat = deck.pickCards(2);
-    deck.assertNoneRemaining();
+  Deal(String foreHand, String middleName, String backHand) {
+    init(foreHand, middleName, backHand);
   }
 
-  private void seat(String name, Position position, Deck deck) {
-    players.put(position, new Player(name, deck.pickCards(10)));
-    positions.put(name, position);
+  private void init(String foreHand, String middleName, String backHand) {
+    Deck deck = new Deck();
+    table = new Table(
+        foreHand, deck.pickCards(10),
+        middleName, deck.pickCards(10),
+        backHand, deck.pickCards(10));
+    skat = deck.pickCards(2);
+    deck.assertNoneRemaining();
   }
 
   /**
    * Move players to the next position and deal new cards
    */
   public void next() {
-    Map<Position, String> previous = new HashMap<Position, String>();
-    for (Position position : Position.values()) {
-      previous.put(position, getName(position));
-    }
-
-    Deck deck = new Deck();
-    for (Position position : Position.values()) {
-      seat(previous.get(position.after()), position, deck);
-    }
-
-    skat = deck.pickCards(2);
-    deck.assertNoneRemaining();
+    init(table.getName(Position.MIDDLE_HAND), table.getName(Position.BACK_HAND),
+        table.getName(Position.FORE_HAND));
   }
 
+
   Position getPosition(String name) {
-    return positions.get(name);
+    return table.getPosition(name);
   }
 
   Set<Card> getCards(String name) {
-    return getCards(getPosition(name));
+    return table.getCards(name);
   }
 
   Set<Card> getCards(Position position) {
-    return players.get(position).getCards();
+    return table.getCards(position);
   }
 
   String getName(Position position) {
-    return players.get(position).getName();
+    return table.getName(position);
   }
 
-  Set<String> getAllName() {
-    return positions.keySet();
+  Set<String> getAllNames() {
+    return table.getAllNames();
   }
 
   Set<Card> getSkat() {
     return skat;
+  }
+
+  Table getTable() {
+    return table;
   }
 }

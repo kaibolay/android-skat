@@ -11,7 +11,8 @@ public class AutoPendingLoginObserver implements PendingLoginObserver {
 
   public AutoPendingLoginObserver(Logger.Factory logFactory,
       String username, String password) {
-    log = logFactory.getLogger(AutoPendingLoginObserver.class.getName());
+    log = logFactory.getLogger(AutoPendingLoginObserver.class.getName()
+        + " for " + username);
     this.username = username;
     this.password = password;
   }

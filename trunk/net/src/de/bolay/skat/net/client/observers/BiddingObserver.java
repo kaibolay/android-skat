@@ -30,7 +30,7 @@ public interface BiddingObserver extends Observer {
     void announceGame(Set<Card> skat, Game game, Level bidLevel);
   }
 
-  void gotCards(Set<Card> hand, Position position,
+  void gotCards(Set<Card> cards, Position position,
       String leftOpponent, String rightOpponent);
 
   void bidSolicited(String listenerName, int nextValue, Bid bid);

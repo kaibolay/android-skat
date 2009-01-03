@@ -2,6 +2,8 @@ package de.bolay.skat;
 
 import java.util.Comparator;
 
+import com.google.common.base.Predicate;
+
 import de.bolay.skat.Card.Rank;
 import de.bolay.skat.Card.Suit;
 
@@ -45,7 +47,7 @@ public enum Game {
     return (card.getSuit() == trumpSuit || card.getRank() == Rank.JACK);
   }
 
-  public Comparator<Card> getCardComperator() {
+  public Comparator<Card> getCardComparator() {
     if (isNull) {
       return new Comparator<Card>() {
           public int compare(Card c1, Card c2) {
@@ -85,6 +87,18 @@ public enum Game {
     }
   }
 
+  public Predicate<Card> canFollow(final Card leadingCard) {
+    return new Predicate<Card>() {
+      public boolean apply(Card card) {
+        if (isTrump(leadingCard)) {
+          return isTrump(card);
+        } else {
+          return !isTrump(card) && leadingCard.getSuit() == card.getSuit();
+        }
+      }
+    };
+  }
+
   public static Game of(int value) {
     for (Game game : values()) {
       if (game.getValue() == value) {
@@ -92,5 +106,10 @@ public enum Game {
       }
     }
     throw new IllegalArgumentException("No game for value: " + value);
+  }
+
+  public boolean trumps(Card card, Card bestCard) {
+    return canFollow(bestCard).apply(card) &&
+        getCardComparator().compare(card, bestCard) > 0;
   }
 }

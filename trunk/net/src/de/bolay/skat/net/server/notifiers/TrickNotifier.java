@@ -1,8 +1,11 @@
 package de.bolay.skat.net.server.notifiers;
 
+import java.util.Set;
+
 import de.bolay.pubsub.Notifier;
 import de.bolay.pubsub.Observers;
 import de.bolay.skat.Card;
+import de.bolay.skat.Game;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.TrickObserver;
 import de.bolay.skat.net.client.observers.TrickObserver.Turn;
@@ -12,6 +15,15 @@ public class TrickNotifier  {
 
   public TrickNotifier(Observers observers) {
     this.observers = observers;
+  }
+
+  public void gameStarts(final Game newGame, final Set<Card> cards) {
+    observers.notify(TrickObserver.class,
+        new Notifier<TrickObserver>() {
+          public void notify(TrickObserver observer) {
+            observer.gameStarts(newGame, cards);
+          }
+    });
   }
 
   public void newTrick(final Position position) {

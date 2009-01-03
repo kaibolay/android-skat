@@ -1,29 +1,25 @@
 package de.bolay.skat.net.server.fake;
 
 import de.bolay.pubsub.Observers;
-import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.TableLobbyObserver.TableLobby;
 import de.bolay.skat.net.server.notifiers.TableLobbyNotifier;
 
 class FakeTableLobby implements TableLobby {
   private final TableLobbyNotifier notifier;
   private final String playerName;
-  private final Deal deal;
+  private final String[] omaNames;
 
-  FakeTableLobby(Observers observers, String playerName, Deal deal) {
+  FakeTableLobby(Observers observers, String playerName, String[] omaNames) {
     notifier = new TableLobbyNotifier(observers, this);
     this.playerName = playerName;
-    this.deal = deal;
+    this.omaNames = omaNames;
   }
 
   void handle() {
+    notifier.entered();
     notifier.serverNotification("Welcome to the <b>fake</b> lobby!");
-    for (Position position : Position.values()) {
-      final String name = deal.getName(position);
-      if (!playerName.equals(name)) {
-        join(name);
-      }
-    }
+    join(omaNames[0]);
+    join(omaNames[1]);
   }
 
   private void join(String omaName) {

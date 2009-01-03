@@ -23,12 +23,12 @@ public class BiddingNotifier  {
     this.observers = observers;
   }
 
-  public void gotCards(final Position position, final Set<Card> hand,
+  public void gotCards(final Position position, final Set<Card> cards,
       final String leftOpponent, final String rightOpponent) {
     observers.notify(BiddingObserver.class,
         new Notifier<BiddingObserver>() {
           public void notify(BiddingObserver observer) {
-            observer.gotCards(hand, position, leftOpponent, rightOpponent);
+            observer.gotCards(cards, position, leftOpponent, rightOpponent);
           }
         });
   }
