@@ -19,8 +19,9 @@ public class AutoTableLobbyObserver implements TableLobbyObserver {
   private int playersLeft;
   private int serverNotificationsReceived;
 
-  public AutoTableLobbyObserver(Logger.Factory logFactory) {
-    log = logFactory.getLogger(AutoTableLobbyObserver.class.getName());
+  public AutoTableLobbyObserver(Logger.Factory logFactory, String playerName) {
+    log = logFactory.getLogger(AutoTableLobbyObserver.class.getName()
+        + " for " + playerName);
   }
 
   public void entered(TableLobby tableLobby) {

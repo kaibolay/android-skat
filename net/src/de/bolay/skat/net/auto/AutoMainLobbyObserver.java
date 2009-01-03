@@ -10,8 +10,9 @@ public class AutoMainLobbyObserver implements MainLobbyObserver {
 
   private final Logger log;
 
-  public AutoMainLobbyObserver(Logger.Factory logFactory) {
-    log = logFactory.getLogger(AutoMainLobbyObserver.class.getName());
+  public AutoMainLobbyObserver(Logger.Factory logFactory, String playerName) {
+    log = logFactory.getLogger(AutoMainLobbyObserver.class.getName()
+        + " for " + playerName);
   }
 
   public void entered(MainLobby mainLobby) {

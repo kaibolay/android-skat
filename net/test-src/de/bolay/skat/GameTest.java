@@ -2,6 +2,7 @@ package de.bolay.skat;
 
 import static java.util.Collections.shuffle;
 import static java.util.Collections.sort;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -13,7 +14,12 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.google.common.base.Nullable;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+
 import de.bolay.skat.Card.Rank;
+import de.bolay.skat.Card.Suit;
 
 public class GameTest {
   private void assertSymmetric(Comparator<Card> comp) {
@@ -87,20 +93,74 @@ public class GameTest {
   }
 
   @Test
-  public void testCardComperators() {
+  public void testCanFollow() {
     for (Game game : Game.values()) {
-      Comparator<Card> comperator = game.getCardComperator();
-      assertComparator(comperator);
-      if (game == Game.NULL) {
-        assertNull("No trump suit for Null", game.getTrumpSuit());
-        assertTens(comperator, false);
-      } else {
-        if (game == Game.GRAND) {
-          assertNull("No trump suit for Grand", game.getTrumpSuit());
-        }
-        assertTrump(comperator, game.getTrumpSuit());
-        assertTens(comperator, true);
+      Multimap<Suit, Card> cardsBySuit = Multimaps.newHashMultimap();
+      for (Suit suit : Suit.values()) {
+        cardsBySuit.putAll(suit, Card.ofSuit(suit));
       }
+      Suit trumpSuit = game.getTrumpSuit();
+      if (!game.isNull()) {
+        // move all jacks to trump suit
+        Set<Card> jacks = Card.ofRank(Rank.JACK);
+        for (Suit suit : Suit.values()) {
+          cardsBySuit.get(suit).removeAll(jacks);
+        }
+        cardsBySuit.putAll(trumpSuit, jacks);
+      }
+      for (Suit suit : cardsBySuit.keySet()) {
+        assertNumCardsInSuit(game, suit, trumpSuit,
+            cardsBySuit.get(suit).size());
+
+        for (Card card : cardsBySuit.get(suit)) {
+          for (Card otherCard : Card.values()) {
+            if (card == otherCard) {
+              continue;
+            }
+            assertEquals(otherCard + " can follow " + card + " for " + game,
+                cardsBySuit.get(suit).contains(otherCard),
+                game.canFollow(card).apply(otherCard));
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Sanity-check number of cards (including trumps) in given suit
+   */
+  private void assertNumCardsInSuit(Game game, Suit suit,
+      @Nullable Suit trumpSuit, int actual) {
+    int numCardsInSuit;
+    if (suit == trumpSuit) {
+      if (suit == null) {
+        numCardsInSuit = 4; // jacks in grand
+      } else {
+        numCardsInSuit = 11;
+      }
+    } else  {
+      if (game.isNull()) {
+        numCardsInSuit = 8;
+      } else {
+        numCardsInSuit = 7;
+      }
+    }
+    assertEquals(
+        ((suit == null)  ? "Jacks" : "Cards in " + suit + " (incl. trumps)")
+        + " for " + game, numCardsInSuit, actual);
+  }
+
+  @Test
+  public void testCardComparators() {
+    for (Game game : Game.values()) {
+      Comparator<Card> comparator = game.getCardComparator();
+      assertComparator(comparator);
+      if (game == Game.NULL || game == Game.GRAND) {
+        assertNull("No trump suit for " + game, game.getTrumpSuit());
+      } else {
+        assertTrump(comparator, game.getTrumpSuit());
+      }
+      assertTens(comparator, /* jacksAreTrump */ game != Game.NULL);
     }
   }
 }

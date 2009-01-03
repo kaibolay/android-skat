@@ -21,6 +21,7 @@ import de.bolay.skat.Game;
 import de.bolay.skat.Level;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.auto.AutoBiddingObserver;
+import de.bolay.skat.net.auto.RoundCompletedObserver;
 import de.bolay.skat.net.client.observers.BiddingObserver;
 import de.bolay.skat.net.client.observers.BiddingObserver.AnnounceGame;
 import de.bolay.skat.net.client.observers.BiddingObserver.Bid;
@@ -28,6 +29,7 @@ import de.bolay.skat.net.client.observers.BiddingObserver.PickSkat;
 import de.bolay.skat.net.server.notifiers.BiddingNotifier;
 
 class FakeBidding {
+  private final Logger log;
   private final Map<Position, BiddingNotifier> notifiers;
   private final Deal deal;
   private final Set<Position> stillBidding;
@@ -35,6 +37,7 @@ class FakeBidding {
 
   public FakeBidding(Logger.Factory logFactory, Observers observers,
       String playerName, Deal deal) {
+    log = logFactory.getLogger(FakeBidding.class.getName());
     this.deal = deal;
     notifiers = new HashMap<Position, BiddingNotifier>();
     stillBidding = new HashSet<Position>(Arrays.asList(Position.values()));
@@ -51,20 +54,19 @@ class FakeBidding {
       String playerName) {
     for (Position position : Position.values()) {
       Observers positionObservers;
-      boolean isPlayer = deal.getName(position).equals(playerName);
+      String name = deal.getName(position);
+      boolean isPlayer = name.equals(playerName);
       if (isPlayer) {
         positionObservers = observers;
       } else {
         positionObservers = new Observers(); // Oma
-        positionObservers.add(new AutoBiddingObserver(logFactory));
+        positionObservers.add(new AutoBiddingObserver(logFactory, name,
+            (RoundCompletedObserver) null));
       }
       BiddingNotifier notifier = new BiddingNotifier(positionObservers);
       notifiers.put(position, notifier);
-      if (isPlayer) {
-        notifier.gotCards(position,
-            ImmutableSet.copyOf(deal.getCards(playerName)),
-            deal.getName(position.after()), deal.getName(position.before()));
-      }
+      notifier.gotCards(position, ImmutableSet.copyOf(deal.getCards(position)),
+          deal.getName(position.after()), deal.getName(position.before()));
     }
   }
 
@@ -87,9 +89,10 @@ class FakeBidding {
     handleBackHandBidding();
     int finalBid = bids.current();
     if (finalBid == Bids.first() && stillBidding.contains(FORE_HAND)) {
-      // both bidders passed, does FORE_HAND want to play?
+      log.info("both bidders passed, does FORE_HAND want to play?");
       solicitResponse(FORE_HAND, /* challenger */ (String) null, finalBid);
     }
+    log.info("final bid %d with %s still bidding", finalBid, stillBidding);
     return finalBid;
   }
 
@@ -151,6 +154,8 @@ class FakeBidding {
     final String challengerName = deal.getName(challenger);
     final String listenerName = deal.getName(listener);
     final int currentBid = bids.current();
+    log.info("%s (%s) is challenging %s (%s) for at least %d",
+        challengerName, challenger, listenerName, listener, currentBid);
     notifiers.get(challenger).solicitBid(
         deal.getName(listener), currentBid, new Bid() {
 
@@ -175,6 +180,7 @@ class FakeBidding {
   }
 
   private void handleAllPassed() {
+    log.info("all passed");
     for (Position position : Position.values()) {
       notifiers.get(position).biddingEnded(/* soloPlayer */ (String) null);
     }
@@ -182,8 +188,12 @@ class FakeBidding {
 
   private BiddingResult handleAnnouncement(final int finalBid) {
     final BiddingResult result = new BiddingResult();
+    result.table = deal.getTable();
     result.soloPosition = stillBidding.iterator().next(); // only element
     String soloName = deal.getName(result.soloPosition);
+
+    log.info("bidding ended at %d with %s (%s) playing solo",
+        finalBid, soloName, result.soloPosition);
     for (Position position : Position.values()) {
       if (position != result.soloPosition) {
         notifiers.get(position).biddingEnded(soloName);
@@ -193,6 +203,7 @@ class FakeBidding {
     soloNotifier.wonBidding(finalBid, new PickSkat() {
 
       public void announceHandGame(Game game, Level level) {
+        log.info("announceHandGame(%s, %s)", game, level);
         if (!level.isHand(game.isNull())) {
           throw new IllegalArgumentException("Not picking up skat, but not"
               + " announcing hand with " + level + " for " + game);
@@ -206,10 +217,12 @@ class FakeBidding {
         // modify hand...
         final Set<Card> cards = deal.getCards(result.soloPosition);
         cards.addAll(deal.getSkat());
+        log.info("picket up skat ", deal.getSkat());
         soloNotifier.gotSkat(ImmutableSet.copyOf(deal.getSkat()),
             new AnnounceGame() {
 
               public void announceGame(Set<Card> skat, Game game, Level level) {
+                log.info("announceGame(%s, %s, %s)", skat, game, level);
                 if (level.isHand(game.isNull())) {
                   throw new IllegalArgumentException("Picked up skat, but"
                       + " announcing hand with " + level + " for " + game);

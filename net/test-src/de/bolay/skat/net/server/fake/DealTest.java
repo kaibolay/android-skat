@@ -52,7 +52,7 @@ public class DealTest {
 
   @Test
   public void testGetAllNames() {
-    Set<String> allNames = deal.getAllName();
+    Set<String> allNames = deal.getAllNames();
     assertTrue("all names: " + allNames,
         allNames.containsAll(Arrays.asList(PLAYERS)));
     assertEquals("number of players", PLAYERS.length, allNames.size());

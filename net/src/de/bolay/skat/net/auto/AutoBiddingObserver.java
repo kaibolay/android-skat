@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import com.google.common.base.Nullable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -17,11 +18,15 @@ import de.bolay.skat.net.client.observers.BiddingObserver;
 public class AutoBiddingObserver implements BiddingObserver {
   private final Logger log;
   private final Random random = new Random();
+  private final RoundCompletedObserver roundCompletedObserver;
 
   private Set<Card> cards;
 
-  public AutoBiddingObserver(Logger.Factory logFactory) {
-    log = logFactory.getLogger(AutoBiddingObserver.class.getName());
+  public AutoBiddingObserver(Logger.Factory logFactory, String playerName,
+      @Nullable RoundCompletedObserver roundCompletedObserver) {
+    log = logFactory.getLogger(AutoBiddingObserver.class.getName()
+        + " for " + playerName);
+    this.roundCompletedObserver = roundCompletedObserver;
   }
 
   public void gotCards(Set<Card> hand, Position position,
@@ -44,8 +49,14 @@ public class AutoBiddingObserver implements BiddingObserver {
     }
   }
 
-  public void biddingEnded(String soloPlayer) {
+  public void biddingEnded(@Nullable String soloPlayer) {
     log.info("biddingEnded(\"%s\")", soloPlayer);
+    if (soloPlayer == null) {
+      // all passed
+      if (roundCompletedObserver != null) {
+        roundCompletedObserver.roundCompleted();
+      }
+    }
   }
 
   public void gameAnnounced(String soloPlayer, int bidValue, Game game,
@@ -66,7 +77,7 @@ public class AutoBiddingObserver implements BiddingObserver {
       cards.remove(card);
       discard.add(card);
     }
-    log.info("discarding: ", discard);
+    log.info("discarding: %s", discard);
     announceGame.announceGame(discard, Game.GRAND, Level.REGULAR);
   }
 

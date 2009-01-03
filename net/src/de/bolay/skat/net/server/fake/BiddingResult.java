@@ -8,6 +8,7 @@ import de.bolay.skat.Level;
 import de.bolay.skat.Position;
 
 class BiddingResult {
+  Table table;
   Game game;
   Level level;
   Position soloPosition;
