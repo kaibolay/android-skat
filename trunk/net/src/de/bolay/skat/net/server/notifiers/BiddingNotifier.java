@@ -16,7 +16,7 @@ import de.bolay.skat.net.client.observers.BiddingObserver.Bid;
 import de.bolay.skat.net.client.observers.BiddingObserver.PickSkat;
 import de.bolay.skat.net.client.observers.BiddingObserver.Response;
 
-public class BiddingNotifier  {
+public class BiddingNotifier {
   private final Observers observers;
 
   public BiddingNotifier(Observers observers) {
