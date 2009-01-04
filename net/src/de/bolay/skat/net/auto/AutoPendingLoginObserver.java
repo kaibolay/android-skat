@@ -18,21 +18,21 @@ public class AutoPendingLoginObserver implements PendingLoginObserver {
   }
 
   public void pendingLogin(PendingLogin pendingLogin) {
-    log.info("PendingLoginObserver.pendingLogin()");
+    log.info("pendingLogin()");
     pendingLogin.attemptLogin(username, password);
   }
 
   public void loginFailed(LoginStatus status, PendingLogin pendingLogin) {
-    log.error("PendingLoginObserver.loginFailed(%s)", pendingLogin);
+    log.error("loginFailed(%s)", pendingLogin);
     throw new IllegalStateException();
   }
 
   public void loginSucceeded(Ranking ranking) {
-    log.info("PendingLoginObserver.loginSucceeded(%s)", ranking);
+    log.info("loginSucceeded(%s)", ranking);
   }
 
   public void serverBusy() {
-    log.error("PendingLoginObserver.serverBusy()");
+    log.error("serverBusy()");
     throw new IllegalStateException();
   }
 }

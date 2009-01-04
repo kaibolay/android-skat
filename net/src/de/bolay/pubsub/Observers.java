@@ -19,7 +19,7 @@ public class Observers {
     observers.remove(observer);
   }
 
-  public <T extends Observer> void notify(Class<T> observerType,
+  public <T extends Observer, X extends T> void notify(Class<X> observerType,
       Notifier<T> notifier) {
     for (Observer observer : observers) {
       if (observerType.isAssignableFrom(observer.getClass())) {

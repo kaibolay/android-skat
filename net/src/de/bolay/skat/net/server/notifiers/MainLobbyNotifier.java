@@ -4,42 +4,11 @@ import de.bolay.pubsub.Notifier;
 import de.bolay.pubsub.Observers;
 import de.bolay.skat.net.Ranking;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
-import de.bolay.skat.net.client.observers.MainLobbyObserver.MainLobby;
+import de.bolay.skat.net.client.observers.LobbyObserver.Lobby;
 
-public class MainLobbyNotifier  {
-  private final Observers observers;
-  private final MainLobby mainLobby;
-
-  public MainLobbyNotifier(Observers observers, MainLobby mainLobby) {
-    this.observers = observers;
-    this.mainLobby = mainLobby;
-  }
-
-  public void entered() {
-    observers.notify(MainLobbyObserver.class,
-        new Notifier<MainLobbyObserver>() {
-          public void notify(MainLobbyObserver observer) {
-            observer.entered(mainLobby);
-          }
-    });
-  }
-
-  public void serverNotification(final String html) {
-    observers.notify(MainLobbyObserver.class,
-        new Notifier<MainLobbyObserver>() {
-          public void notify(MainLobbyObserver observer) {
-            observer.serverNotificationReceived(html);
-          }
-    });
-  }
-
-  public void chatMessage(final String sender, final String text) {
-    observers.notify(MainLobbyObserver.class,
-        new Notifier<MainLobbyObserver>() {
-          public void notify(MainLobbyObserver observer) {
-            observer.chatMessageReceived(sender, text);
-          }
-    });
+public class MainLobbyNotifier extends LobbyNotifier {
+  public MainLobbyNotifier(Observers observers, Lobby mainLobby) {
+    super(observers, MainLobbyObserver.class, mainLobby);
   }
 
   public void playerJoined(final String name, final Ranking ranking) {
@@ -47,15 +16,6 @@ public class MainLobbyNotifier  {
         new Notifier<MainLobbyObserver>() {
           public void notify(MainLobbyObserver observer) {
             observer.playerJoined(name, ranking);
-          }
-    });
-  }
-
-  public void playerLeft(final String name) {
-    observers.notify(MainLobbyObserver.class,
-        new Notifier<MainLobbyObserver>() {
-          public void notify(MainLobbyObserver observer) {
-            observer.playerLeft(name);
           }
     });
   }

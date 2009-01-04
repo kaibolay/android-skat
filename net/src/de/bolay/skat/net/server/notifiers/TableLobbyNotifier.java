@@ -3,42 +3,11 @@ package de.bolay.skat.net.server.notifiers;
 import de.bolay.pubsub.Notifier;
 import de.bolay.pubsub.Observers;
 import de.bolay.skat.net.client.observers.TableLobbyObserver;
-import de.bolay.skat.net.client.observers.TableLobbyObserver.TableLobby;
+import de.bolay.skat.net.client.observers.LobbyObserver.Lobby;
 
-public class TableLobbyNotifier  {
-  private final Observers observers;
-  private final TableLobby tableLobby;
-
-  public TableLobbyNotifier(Observers observers, TableLobby tableLobby) {
-    this.observers = observers;
-    this.tableLobby = tableLobby;
-  }
-
-  public void entered() {
-    observers.notify(TableLobbyObserver.class,
-        new Notifier<TableLobbyObserver>() {
-          public void notify(TableLobbyObserver observer) {
-            observer.entered(tableLobby);
-          }
-    });
-  }
-
-  public void serverNotification(final String html) {
-    observers.notify(TableLobbyObserver.class,
-        new Notifier<TableLobbyObserver>() {
-          public void notify(TableLobbyObserver observer) {
-            observer.serverNotificationReceived(html);
-          }
-    });
-  }
-
-  public void chatMessage(final String sender, final String text) {
-    observers.notify(TableLobbyObserver.class,
-        new Notifier<TableLobbyObserver>() {
-          public void notify(TableLobbyObserver observer) {
-            observer.chatMessageReceived(sender, text);
-          }
-    });
+public class TableLobbyNotifier extends LobbyNotifier {
+  public TableLobbyNotifier(Observers observers, Lobby tableLobby) {
+    super(observers, TableLobbyObserver.class, tableLobby);
   }
 
   public void playerJoined(final String name) {
@@ -46,15 +15,6 @@ public class TableLobbyNotifier  {
         new Notifier<TableLobbyObserver>() {
           public void notify(TableLobbyObserver observer) {
             observer.playerJoined(name);
-          }
-    });
-  }
-
-  public void playerLeft(final String name) {
-    observers.notify(TableLobbyObserver.class,
-        new Notifier<TableLobbyObserver>() {
-          public void notify(TableLobbyObserver observer) {
-            observer.playerLeft(name);
           }
     });
   }
