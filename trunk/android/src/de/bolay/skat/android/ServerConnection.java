@@ -39,18 +39,22 @@ public class ServerConnection extends Service {
   public String password;
 
   private class SimpleConnectionObserver implements ConnectionObserver {
+    @SuppressWarnings("hiding")
+    private final Logger LOG = LOG_FACTORY.getLogger(
+        ConnectionObserver.class.getSimpleName());
+
     Ranking myRanking;
 
     public void disconnected() {
-      LOG.info("ConnectionObserver.disconnected()");
+      LOG.info("disconnected()");
     }
 
     public void loginAttempted(LoginStatus status) {
-      LOG.info("ConnectionObserver.loginAttempted(%s)", status);
+      LOG.info("loginAttempted(%s)", status);
     }
 
     public void rankingReceived(Ranking ranking) {
-      LOG.info("ConnectionObserver.rankingReceived(%s)", ranking);
+      LOG.info("rankingReceived(%s)", ranking);
       myRanking = ranking;
     }
 
@@ -61,35 +65,40 @@ public class ServerConnection extends Service {
   }
 
   private static class SimpleMainLobbyObserver implements MainLobbyObserver {
+    @SuppressWarnings("hiding")
+    private final Logger LOG = LOG_FACTORY.getLogger(
+        SimpleMainLobbyObserver.class.getSimpleName());
+
     Map<String, Ranking> scoreboard = new HashMap<String, Ranking>();
 
     public void serverNotificationReceived(String html) {
-      LOG.info(
-          "MainLobbyObserver.serverNotificationReceived(\"%s\")", html);
+      LOG.info("serverNotificationReceived(\"%s\")", html);
     }
 
     public void playerJoined(String name, Ranking ranking) {
-      LOG.info("MainLobbyObserver.playerJoined(\"%s\", %s)", name, ranking);
+      LOG.info("playerJoined(\"%s\", %s)", name, ranking);
       scoreboard.put(name, ranking);
     }
 
     public void playerLeft(String name) {
-      LOG.info("MainLobbyObserver.playerLeft(\"%s\", %s)", name);
+      LOG.info("playerLeft(\"%s\", %s)", name);
       scoreboard.remove(name);
     }
 
     public void chatMessageReceived(String sender, String text) {
-      LOG.info("MainLobbyObserver.chatMessageReceived(\"%s\", \"%s\")",
+      LOG.info("chatMessageReceived(\"%s\", \"%s\")",
           sender, text);
     }
 
-    public void entered(MainLobby mailLobby) {
-      // TODO Auto-generated method stub
-
+    public void entered(Lobby mainLobby) {
+      LOG.info("entered()");
     }
   }
 
   private final class ServiceHandler extends Handler {
+    @SuppressWarnings("hiding")
+    private final Logger LOG = LOG_FACTORY.getLogger(
+        ServiceHandler.class.getSimpleName());
 
     public ServiceHandler(Looper looper) {
       super(looper);
