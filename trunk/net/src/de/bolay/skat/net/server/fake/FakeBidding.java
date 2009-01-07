@@ -14,7 +14,6 @@ import com.google.common.base.Nullable;
 import com.google.common.collect.ImmutableSet;
 
 import de.bolay.log.Logger;
-import de.bolay.pubsub.Observers;
 import de.bolay.skat.Bids;
 import de.bolay.skat.Card;
 import de.bolay.skat.Game;
@@ -26,47 +25,44 @@ import de.bolay.skat.net.client.observers.BiddingObserver;
 import de.bolay.skat.net.client.observers.BiddingObserver.AnnounceGame;
 import de.bolay.skat.net.client.observers.BiddingObserver.Bid;
 import de.bolay.skat.net.client.observers.BiddingObserver.PickSkat;
-import de.bolay.skat.net.server.notifiers.BiddingNotifier;
 
 class FakeBidding {
   private final Logger log;
-  private final Map<Position, BiddingNotifier> notifiers;
+  private final Map<Position, BiddingObserver> observers;
   private final Deal deal;
   private final Set<Position> stillBidding;
   private final Bids bids;
 
-  public FakeBidding(Logger.Factory logFactory, Observers observers,
+  public FakeBidding(Logger.Factory logFactory, BiddingObserver biddingObserver,
       String playerName, Deal deal) {
     log = logFactory.getLogger(FakeBidding.class.getName());
     this.deal = deal;
-    notifiers = new HashMap<Position, BiddingNotifier>();
+    observers = new HashMap<Position, BiddingObserver>();
     stillBidding = new HashSet<Position>(Arrays.asList(Position.values()));
     bids = new Bids();
 
-    setupNotifiers(logFactory, observers, playerName);
+    setupObservers(logFactory, biddingObserver, playerName);
   }
 
   /**
-   * Set notifiers appropriate for each position (the passed-in for the player,
+   * Set observers appropriate for each position (the passed-in for the player,
    * two others for "Omas" which bid automatically).
    */
-  private void setupNotifiers(Logger.Factory logFactory, Observers observers,
-      String playerName) {
+  private void setupObservers(Logger.Factory logFactory,
+      BiddingObserver playerBiddingObserver, String playerName) {
     for (Position position : Position.values()) {
-      Observers positionObservers;
+      BiddingObserver biddingObserver;
       String name = deal.getName(position);
-      boolean isPlayer = name.equals(playerName);
-      if (isPlayer) {
-        positionObservers = observers;
+      if (name.equals(playerName)) {
+        biddingObserver = playerBiddingObserver;
       } else {
-        positionObservers = new Observers(); // Oma
-        positionObservers.add(new AutoBiddingObserver(logFactory, name,
-            (RoundCompletedObserver) null));
+        biddingObserver = new AutoBiddingObserver(logFactory, name,
+            (RoundCompletedObserver) null);
       }
-      BiddingNotifier notifier = new BiddingNotifier(positionObservers);
-      notifiers.put(position, notifier);
-      notifier.gotCards(position, ImmutableSet.copyOf(deal.getCards(position)),
-          deal.getName(position.after()), deal.getName(position.before()));
+      observers.put(position, biddingObserver);
+      biddingObserver.gotCards(ImmutableSet.copyOf(deal.getCards(position)),
+          position, deal.getName(position.after()),
+          deal.getName(position.before()));
     }
   }
 
@@ -121,11 +117,11 @@ class FakeBidding {
   private void announceResponse(String name, int bid, boolean accept) {
     for (Position position : Position.values()) {
       if (!name.equals(deal.getName(position))) {
-        BiddingNotifier notifier = notifiers.get(position);
+        BiddingObserver observer = observers.get(position);
         if (accept) {
-          notifier.announceAccept(name, bid);
+          observer.heardAccept(name, bid);
         } else {
-          notifier.announcePass(name, bid);
+          observer.heardPass(name, bid);
         }
       }
     }
@@ -135,7 +131,7 @@ class FakeBidding {
       @Nullable String challengerName, final int currentBid) {
 
     final String listenerName = deal.getName(listener);
-    notifiers.get(listener).solicitResponse(challengerName,
+    observers.get(listener).repsonseSolicited(challengerName,
         currentBid, new BiddingObserver.Response() {
 
           public void accept() {
@@ -156,11 +152,11 @@ class FakeBidding {
     final int currentBid = bids.current();
     log.info("%s (%s) is challenging %s (%s) for at least %d",
         challengerName, challenger, listenerName, listener, currentBid);
-    notifiers.get(challenger).solicitBid(
+    observers.get(challenger).bidSolicited(
         deal.getName(listener), currentBid, new Bid() {
 
           public void bid(int value) {
-            notifiers.get(observer).announceBid(
+            observers.get(observer).heardBid(
                 challengerName, listenerName, currentBid);
             if (bids.isLast()) {
               // maxed out, listener plays!
@@ -173,7 +169,7 @@ class FakeBidding {
           }
 
           public void pass() {
-            notifiers.get(observer).announcePass(challengerName, currentBid);
+            observers.get(observer).heardPass(challengerName, currentBid);
             stillBidding.remove(challenger);
           }
         });
@@ -182,7 +178,7 @@ class FakeBidding {
   private void handleAllPassed() {
     log.info("all passed");
     for (Position position : Position.values()) {
-      notifiers.get(position).biddingEnded(/* soloPlayer */ (String) null);
+      observers.get(position).biddingEnded(/* soloPlayer */ (String) null);
     }
   }
 
@@ -196,11 +192,11 @@ class FakeBidding {
         finalBid, soloName, result.soloPosition);
     for (Position position : Position.values()) {
       if (position != result.soloPosition) {
-        notifiers.get(position).biddingEnded(soloName);
+        observers.get(position).biddingEnded(soloName);
       }
     }
-    final BiddingNotifier soloNotifier = notifiers.get(result.soloPosition);
-    soloNotifier.wonBidding(finalBid, new PickSkat() {
+    final BiddingObserver soloObserver = observers.get(result.soloPosition);
+    soloObserver.wonBidding(finalBid, new PickSkat() {
 
       public void announceHandGame(Game game, Level level) {
         log.info("announceHandGame(%s, %s)", game, level);
@@ -218,7 +214,7 @@ class FakeBidding {
         final Set<Card> cards = deal.getCards(result.soloPosition);
         cards.addAll(deal.getSkat());
         log.info("picket up skat ", deal.getSkat());
-        soloNotifier.gotSkat(ImmutableSet.copyOf(deal.getSkat()),
+        soloObserver.gotSkat(ImmutableSet.copyOf(deal.getSkat()),
             new AnnounceGame() {
 
               public void announceGame(Set<Card> skat, Game game, Level level) {

@@ -8,48 +8,45 @@ import java.util.Set;
 import com.google.common.collect.Lists;
 
 import de.bolay.log.Logger;
-import de.bolay.pubsub.Observers;
 import de.bolay.skat.Card;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.auto.AutoTrickObserver;
 import de.bolay.skat.net.auto.RoundCompletedObserver;
+import de.bolay.skat.net.client.observers.TrickObserver;
 import de.bolay.skat.net.client.observers.TrickObserver.Turn;
-import de.bolay.skat.net.server.notifiers.TrickNotifier;
 
 public class FakeTrick {
   private final Logger log;
-  private final Map<Position, TrickNotifier> notifiers;
+  private final Map<Position, TrickObserver> observers;
   private final BiddingResult biddingResult;
   private final List<Card> trick = Lists.newArrayListWithExpectedSize(3);
 
-  FakeTrick(Logger.Factory logFactory, Observers observers, String playerName,
-      BiddingResult biddingResult) {
+  FakeTrick(Logger.Factory logFactory, TrickObserver trickObserver,
+      String playerName, BiddingResult biddingResult) {
     log = logFactory.getLogger(FakeTrick.class.getName());
     this.biddingResult = biddingResult;
-    notifiers = new HashMap<Position, TrickNotifier>();
+    observers = new HashMap<Position, TrickObserver>();
 
-    setupNotifiers(logFactory, observers, playerName);
+    setupObservers(logFactory, trickObserver, playerName);
   }
 
   /**
-   * Set notifiers appropriate for each position (the passed-in for the player,
+   * Set observers appropriate for each position (the passed-in for the player,
    * two others for "Omas" which play automatically).
    */
-  private void setupNotifiers(Logger.Factory logFactory, Observers observers,
-      String playerName) {
+  private void setupObservers(Logger.Factory logFactory,
+      TrickObserver playerTrickObserver, String playerName) {
     for (Position position : Position.values()) {
-      Observers trickObservers;
+      TrickObserver trickObserver;
       String name = biddingResult.table.getName(position);
       if (name.equals(playerName)) {
-        trickObservers = observers;
+        trickObserver = playerTrickObserver;
       } else {
-        trickObservers = new Observers(); // Oma
-        trickObservers.add(new AutoTrickObserver(logFactory, name,
-            (RoundCompletedObserver) null));
+        trickObserver = new AutoTrickObserver(logFactory, name,
+            (RoundCompletedObserver) null);
       }
-      TrickNotifier notifier = new TrickNotifier(trickObservers);
-      notifiers.put(position, notifier);
-      notifier.gameStarts(biddingResult.game,
+      observers.put(position, trickObserver);
+      trickObserver.gameStarts(biddingResult.game,
           biddingResult.table.getCards(position));
     }
   }
@@ -69,7 +66,7 @@ public class FakeTrick {
         return null;
       }
       final String playerName = biddingResult.table.getName(turn);
-      notifiers.get(turn).cardSolicited(new Turn() {
+      observers.get(turn).cardSolicited(new Turn() {
 
         public void playCard(Card card) {
           if (!cards.remove(card)) {
@@ -78,7 +75,7 @@ public class FakeTrick {
           }
           trick.add(card);
           for (Position position : Position.values()) {
-            notifiers.get(position).cardPlayed(playerName, card);
+            observers.get(position).cardPlayed(playerName, card);
           }
         }
       });
@@ -102,8 +99,8 @@ public class FakeTrick {
     int score = 0; // TODO: determine
     boolean won = false; // TODO: determine
 
-    for (TrickNotifier notifier : notifiers.values()) {
-      notifier.gameOver(won, points, score);
+    for (TrickObserver observer : observers.values()) {
+      observer.gameOver(won, points, score);
     }
   }
 }

@@ -9,36 +9,64 @@ import de.bolay.skat.net.auto.AutoPendingLoginObserver;
 import de.bolay.skat.net.auto.AutoTableLobbyObserver;
 import de.bolay.skat.net.auto.AutoTrickObserver;
 import de.bolay.skat.net.auto.RoundCompletedObserver;
+import de.bolay.skat.net.client.observers.BiddingObserver;
+import de.bolay.skat.net.client.observers.ConnectionObserver;
+import de.bolay.skat.net.client.observers.MainLobbyObserver;
+import de.bolay.skat.net.client.observers.ObserverFactory;
+import de.bolay.skat.net.client.observers.PendingLoginObserver;
+import de.bolay.skat.net.client.observers.TableLobbyObserver;
+import de.bolay.skat.net.client.observers.TrickObserver;
 
-public class AutoPlayer implements RoundCompletedObserver {
+public class AutoPlayer implements RoundCompletedObserver, ConnectionObserver {
   private static final long WAIT = 3 * 1000;
   private static final long TIMEOUT = 30 * 1000;
 
   private final ServerConnection connection;
   private final Logger log;
   private final AtomicInteger roundsRemaining = new AtomicInteger();
+  private final ObserverFactory observerFactory;
 
-  public AutoPlayer(Logger.Factory logFactory, ServerConnection connection,
-      String username, String password) {
+  public AutoPlayer(final Logger.Factory logFactory,
+      ServerConnection connection,
+      final String username, final String password) {
     log = logFactory.getLogger(AutoPlayer.class.getName());
     this.connection = connection;
+    final RoundCompletedObserver roundCompletedObserver = this;
+    final ConnectionObserver connectionObserver = this;
+    observerFactory = new ObserverFactory() {
+      public ConnectionObserver createConnectionObserver() {
+        return connectionObserver;
+      }
 
-    connection.addObserver(new AutoPendingLoginObserver(logFactory,
-        username, password));
-    connection.addObserver(new AutoMainLobbyObserver(logFactory, username));
-    connection.addObserver(new AutoTableLobbyObserver(logFactory, username));
-    connection.addObserver(new AutoBiddingObserver(logFactory, username,
-        this));
-    connection.addObserver(new AutoTrickObserver(logFactory, username,
-        this));
+      public PendingLoginObserver createPendingLoginObserver() {
+        return new AutoPendingLoginObserver(logFactory, username, password);
+      }
+
+      public MainLobbyObserver createMainLobbyObserver() {
+        return new AutoMainLobbyObserver(logFactory, username);
+      }
+
+      public TableLobbyObserver createTableLobbyObserver() {
+        return new AutoTableLobbyObserver(logFactory, username);
+      }
+
+      public BiddingObserver createBiddingObserver() {
+        return new AutoBiddingObserver(logFactory, username,
+            roundCompletedObserver);
+      }
+
+      public TrickObserver createTrickObserver() {
+        return new AutoTrickObserver(logFactory, username,
+            roundCompletedObserver);
+      }};
   }
 
   public void play(int numGames) {
     roundsRemaining.set(numGames);
     log.info("opening connection");
-    connection.open();
+    connection.open(observerFactory);
     while (continuePlaying()) {
-      waitForEndOfRound(roundsRemaining.get());
+      waitForEndOfRound(numGames - roundsRemaining.get() + 1);
     }
     log.info("done");
   }
@@ -71,5 +99,10 @@ public class AutoPlayer implements RoundCompletedObserver {
     if (!continuePlaying()) {
       connection.close();
     }
+  }
+
+  public void disconnected() {
+    log.error("server disconnected");
+    roundsRemaining.set(0);
   }
 }

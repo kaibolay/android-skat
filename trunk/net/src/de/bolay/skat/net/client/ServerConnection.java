@@ -1,14 +1,11 @@
 package de.bolay.skat.net.client;
 
-import de.bolay.pubsub.Observer;
+import de.bolay.skat.net.client.observers.ObserverFactory;
 
 public interface ServerConnection {
-  /** add an observer */
-  void addObserver(Observer observer);
-
   /** Open connection (after installing observers */
-  void open();
-  
+  void open(ObserverFactory observerFactory);
+
   /** Close connection (by shutting down handler) */
   void close();
 
