@@ -1,9 +1,9 @@
-package de.bolay.skat.net.client;
+package de.bolay.skat.net.server;
 
 import de.bolay.skat.net.client.observers.ObserverFactory;
 
 public interface ServerConnection {
-  /** Open connection (after installing observers */
+  /** Open connection */
   void open(ObserverFactory observerFactory);
 
   /** Close connection (by shutting down handler) */
