@@ -1,23 +1,24 @@
 package de.bolay.skat.net.server.fake;
 
-import de.bolay.pubsub.Observers;
+import de.bolay.skat.net.client.observers.TableLobbyObserver;
 import de.bolay.skat.net.client.observers.LobbyObserver.Lobby;
-import de.bolay.skat.net.server.notifiers.TableLobbyNotifier;
 
 class FakeTableLobby extends FakeLobby implements Lobby {
-  private final TableLobbyNotifier notifier;
+  private final TableLobbyObserver tableLobbyObserver;
 
-  FakeTableLobby(Observers observers, String playerName, String[] omaNames) {
-    super(playerName, omaNames);
-    notifier = new TableLobbyNotifier(observers, this);
+  FakeTableLobby(TableLobbyObserver tableLobbyObserver, String playerName,
+      String[] omaNames) {
+    super(tableLobbyObserver, playerName, omaNames);
+    this.tableLobbyObserver = tableLobbyObserver;
   }
 
+  @Override
   public void handle() {
-    super.handle(notifier);
+    super.handle();
   }
 
   @Override
   protected void join(String omaName) {
-    notifier.playerJoined(omaName);
+    tableLobbyObserver.playerJoined(omaName);
   }
 }
