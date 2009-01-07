@@ -5,8 +5,8 @@ import java.util.concurrent.Executors;
 
 import de.bolay.log.Logger;
 import de.bolay.skat.Position;
-import de.bolay.skat.net.client.ServerConnection;
 import de.bolay.skat.net.client.observers.ObserverFactory;
+import de.bolay.skat.net.server.ServerConnection;
 
 public class FakeServer implements ServerConnection, Runnable {
   private static final String FAKE_PASSWORD = "fake";

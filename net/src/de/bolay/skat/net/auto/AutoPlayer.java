@@ -1,14 +1,8 @@
-package de.bolay.skat.net.client;
+package de.bolay.skat.net.auto;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import de.bolay.log.Logger;
-import de.bolay.skat.net.auto.AutoBiddingObserver;
-import de.bolay.skat.net.auto.AutoMainLobbyObserver;
-import de.bolay.skat.net.auto.AutoPendingLoginObserver;
-import de.bolay.skat.net.auto.AutoTableLobbyObserver;
-import de.bolay.skat.net.auto.AutoTrickObserver;
-import de.bolay.skat.net.auto.RoundCompletedObserver;
 import de.bolay.skat.net.client.observers.BiddingObserver;
 import de.bolay.skat.net.client.observers.ConnectionObserver;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
@@ -16,6 +10,7 @@ import de.bolay.skat.net.client.observers.ObserverFactory;
 import de.bolay.skat.net.client.observers.PendingLoginObserver;
 import de.bolay.skat.net.client.observers.TableLobbyObserver;
 import de.bolay.skat.net.client.observers.TrickObserver;
+import de.bolay.skat.net.server.ServerConnection;
 
 public class AutoPlayer implements RoundCompletedObserver, ConnectionObserver {
   private static final long WAIT = 3 * 1000;

@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import de.bolay.log.JavaLogger;
 import de.bolay.log.Logger;
-import de.bolay.skat.net.client.AutoPlayer;
+import de.bolay.skat.net.auto.AutoPlayer;
 
 public class FakeServerTest {
   private static final String USERNAME = "FakeTester";
