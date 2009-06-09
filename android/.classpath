@@ -6,6 +6,7 @@
 	<classpathentry kind="lib" path="/Skat-Online/lib/jeclrt.jar"/>
 	<classpathentry kind="lib" path="/Skat-Online/lib/skatandroid.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Skat-Net"/>
-	<classpathentry kind="lib" path="/Users/kbolay/Documents/workspace/third-party/google-collect-snapshot-20080820/google-collect-snapshot-20080820.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Google Collections"/>
+	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,11 +1,9 @@
 package de.bolay.log;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import android.util.Log;
 
-import com.google.common.base.Nullable;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class AndroidLogger extends AbstractLogger {
   public static class Factory implements Logger.Factory {
@@ -43,19 +41,19 @@ public class AndroidLogger extends AbstractLogger {
   }
 
   @Override
-  public void log(Level level, @Nullable Throwable throwable,
+  public void log(Level level, /* Nullable */ Throwable throwable,
       String formatString, Object... args) {
     if (!shouldLog(level)) {
       return;
     }
     StringWriter stringWriter = new StringWriter();
-    stringWriter.append(String.format(formatString, args));
+    stringWriter.append(format(formatString, args));
     appendThrowable(new PrintWriter(stringWriter), throwable);
     Log.println(convertLevel(level), tag, stringWriter.toString());
   }
 
   private void appendThrowable(PrintWriter printWriter,
-      @Nullable Throwable throwable) {
+      /* Nullable */ Throwable throwable) {
     if (throwable != null) {
       printWriter.append(" - ");
       throwable.printStackTrace(printWriter);
