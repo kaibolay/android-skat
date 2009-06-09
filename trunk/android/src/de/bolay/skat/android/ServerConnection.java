@@ -1,8 +1,5 @@
 package de.bolay.skat.android;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,10 +15,14 @@ import com.skatonline.client.ServerConnectionImpl;
 import de.bolay.log.AndroidLogger;
 import de.bolay.log.Logger;
 import de.bolay.skat.net.Ranking;
+import de.bolay.skat.net.client.observers.AutisticObserverFactory;
 import de.bolay.skat.net.client.observers.ConnectionObserver;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
 import de.bolay.skat.net.client.observers.PendingLoginObserver.LoginStatus;
 import de.bolay.skat.net.client.observers.PendingLoginObserver.PendingLogin;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServerConnection extends Service {
   private static final Logger.Factory LOG_FACTORY =
@@ -33,7 +34,7 @@ public class ServerConnection extends Service {
   private volatile Looper connectionLooper;
   private volatile ServiceHandler connectionHandler;
 
-  public de.bolay.skat.net.client.ServerConnection connection;
+  public de.bolay.skat.net.server.ServerConnection connection;
 
   public String username;
   public String password;
@@ -119,8 +120,15 @@ public class ServerConnection extends Service {
   public void onCreate() {
     connection = ServerConnectionImpl.getConnection(
         LOG_FACTORY, Server.PREMIUM);
-    connection.addObserver(new SimpleConnectionObserver());
-    connection.addObserver(new SimpleMainLobbyObserver());
+    connection.open(new AutisticObserverFactory() {
+      @Override public ConnectionObserver createConnectionObserver() {
+        return new SimpleConnectionObserver();
+      }
+
+      @Override public MainLobbyObserver createMainLobbyObserver() {
+        return new SimpleMainLobbyObserver();
+      }
+    });
 
     HandlerThread thread = new HandlerThread("ServerConnection");
     thread.start();
