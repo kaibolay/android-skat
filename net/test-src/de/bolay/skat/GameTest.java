@@ -6,20 +6,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
+import com.sun.istack.internal.Nullable;
+
+import de.bolay.skat.Card.Rank;
+import de.bolay.skat.Card.Suit;
+
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import org.junit.Test;
-
-import com.google.common.base.Nullable;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-
-import de.bolay.skat.Card.Rank;
-import de.bolay.skat.Card.Suit;
 
 public class GameTest {
   private void assertSymmetric(Comparator<Card> comp) {
@@ -95,7 +96,7 @@ public class GameTest {
   @Test
   public void testCanFollow() {
     for (Game game : Game.values()) {
-      Multimap<Suit, Card> cardsBySuit = Multimaps.newHashMultimap();
+      Multimap<Suit, Card> cardsBySuit = HashMultimap.create();
       for (Suit suit : Suit.values()) {
         cardsBySuit.putAll(suit, Card.ofSuit(suit));
       }

@@ -1,7 +1,6 @@
 package de.bolay.log;
 
 
-import com.google.common.base.Nullable;
 
 public abstract class AbstractLogger implements Logger {
   private static final String DEFAULT_TAG = Logger.class.getName();
@@ -31,7 +30,15 @@ public abstract class AbstractLogger implements Logger {
     return level.compareTo(minLevel) >= 0;
   }
 
-  public abstract void log(Level level, @Nullable Throwable throwable,
+  protected String format(String formatString, Object... args) {
+    if (args.length > 0) {
+      return String.format(formatString, args);
+    } else {
+      return formatString;
+    }
+  }
+
+  public abstract void log(Level level, /* Nullable */ Throwable throwable,
       String formatString, Object... args);
 
   public void log(Level level, String formatString, Object... args) {

@@ -1,7 +1,7 @@
 package de.bolay.log;
 
 public interface Logger {
-  public enum Level {DEBUG, INFO, ERROR};
+  public enum Level {DEBUG, INFO, ERROR}
 
   public interface Factory {
     Logger getLogger(String tag);

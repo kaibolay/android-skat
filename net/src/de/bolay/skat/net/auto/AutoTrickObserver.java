@@ -2,11 +2,6 @@ package de.bolay.skat.net.auto;
 
 import static com.google.common.collect.Collections2.filter;
 
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import com.google.common.base.Nullable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -15,6 +10,10 @@ import de.bolay.skat.Card;
 import de.bolay.skat.Game;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.TrickObserver;
+
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 public class AutoTrickObserver implements TrickObserver {
   private final Logger log;
@@ -26,7 +25,7 @@ public class AutoTrickObserver implements TrickObserver {
   private Set<Card> cards;
 
   public AutoTrickObserver(Logger.Factory logFactory, String playerName,
-      @Nullable RoundCompletedObserver roundCompletedObserver) {
+      /* Nullable */ RoundCompletedObserver roundCompletedObserver) {
     log = logFactory.getLogger(AutoTrickObserver.class.getName()
         + " for " + playerName);
     this.roundCompletedObserver = roundCompletedObserver;
