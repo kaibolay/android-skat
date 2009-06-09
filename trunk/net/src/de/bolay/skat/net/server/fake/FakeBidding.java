@@ -4,13 +4,6 @@ import static de.bolay.skat.Position.BACK_HAND;
 import static de.bolay.skat.Position.FORE_HAND;
 import static de.bolay.skat.Position.MIDDLE_HAND;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import com.google.common.base.Nullable;
 import com.google.common.collect.ImmutableSet;
 
 import de.bolay.log.Logger;
@@ -25,6 +18,12 @@ import de.bolay.skat.net.client.observers.BiddingObserver;
 import de.bolay.skat.net.client.observers.BiddingObserver.AnnounceGame;
 import de.bolay.skat.net.client.observers.BiddingObserver.Bid;
 import de.bolay.skat.net.client.observers.BiddingObserver.PickSkat;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 class FakeBidding {
   private final Logger log;
@@ -128,7 +127,7 @@ class FakeBidding {
   }
 
   private void solicitResponse(final Position listener,
-      @Nullable String challengerName, final int currentBid) {
+      /* Nullable */ String challengerName, final int currentBid) {
 
     final String listenerName = deal.getName(listener);
     observers.get(listener).repsonseSolicited(challengerName,

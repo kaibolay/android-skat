@@ -1,8 +1,8 @@
 package de.bolay.log;
 
-import java.io.PrintStream;
+import com.sun.istack.internal.Nullable;
 
-import com.google.common.base.Nullable;
+import java.io.PrintStream;
 
 public class ConsoleLogger extends AbstractLogger {
 
@@ -23,7 +23,7 @@ public class ConsoleLogger extends AbstractLogger {
   }
 
   @Override
-  public void log(Level level, @Nullable Throwable throwable,
+  public void log(Level level, /* Nullable */ Throwable throwable,
       String formatString, Object... args) {
     if (!shouldLog(level)) {
       return;
@@ -33,7 +33,7 @@ public class ConsoleLogger extends AbstractLogger {
         printStream = System.err;
     }
     appendTag(printStream);
-    printStream.append(String.format(formatString, args));
+    printStream.append(format(formatString, args));
     appendThrowable(printStream, throwable);
     printStream.println();
     printStream.flush();

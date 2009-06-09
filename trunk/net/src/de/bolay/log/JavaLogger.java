@@ -1,6 +1,5 @@
 package de.bolay.log;
 
-import com.google.common.base.Nullable;
 
 public class JavaLogger extends AbstractLogger {
 
@@ -30,7 +29,7 @@ public class JavaLogger extends AbstractLogger {
     this(tag, (Level) null);
   }
 
-  public JavaLogger(String tag, @Nullable Level minLevel) {
+  public JavaLogger(String tag, /* Nullable */ Level minLevel) {
     javaLogger = java.util.logging.Logger.getLogger(tag);
     if (minLevel != null) {
       javaLogger.setLevel(convertLevel(minLevel));
@@ -38,11 +37,11 @@ public class JavaLogger extends AbstractLogger {
   }
 
   @Override
-  public void log(Level level, @Nullable Throwable throwable,
+  public void log(Level level, /* Nullable */ Throwable throwable,
       String formatString, Object... args) {
     javaLogger.logp(convertLevel(level),
         /* source class */ (String) null, /* source method */ (String) null,
-        String.format(formatString, args), throwable);
+        format(formatString, args), throwable);
   }
 
   private static java.util.logging.Level convertLevel(Level level) {
