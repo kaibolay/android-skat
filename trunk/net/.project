@@ -3,6 +3,7 @@
 	<name>Skat-Net</name>
 	<comment></comment>
 	<projects>
+		<project>JSR-305</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

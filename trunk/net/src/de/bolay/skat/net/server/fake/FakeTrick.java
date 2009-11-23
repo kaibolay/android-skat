@@ -46,7 +46,7 @@ public class FakeTrick {
             (RoundCompletedObserver) null);
       }
       observers.put(position, trickObserver);
-      trickObserver.gameStarts(biddingResult.game,
+      trickObserver.gameStarts(biddingResult.game, biddingResult.level,
           biddingResult.table.getCards(position));
     }
   }

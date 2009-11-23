@@ -2,18 +2,21 @@ package de.bolay.skat.net.auto;
 
 import static com.google.common.collect.Collections2.filter;
 
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import de.bolay.log.Logger;
 import de.bolay.skat.Card;
 import de.bolay.skat.Game;
+import de.bolay.skat.Level;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.TrickObserver;
-
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
 
 public class AutoTrickObserver implements TrickObserver {
   private final Logger log;
@@ -22,18 +25,14 @@ public class AutoTrickObserver implements TrickObserver {
   private final List<Card> trick = Lists.newArrayListWithExpectedSize(3);
 
   private Game game;
+  private Level level;
   private Set<Card> cards;
 
   public AutoTrickObserver(Logger.Factory logFactory, String playerName,
-      /* Nullable */ RoundCompletedObserver roundCompletedObserver) {
+      @Nullable RoundCompletedObserver roundCompletedObserver) {
     log = logFactory.getLogger(AutoTrickObserver.class.getName()
         + " for " + playerName);
     this.roundCompletedObserver = roundCompletedObserver;
-  }
-
-  public void gameStarts(Game newGame, Set<Card> newCards) {
-    game = newGame;
-    cards = Sets.newHashSet(newCards); // make mutable copy
   }
 
   public void cardPlayed(String playerName, Card card) {
@@ -74,5 +73,13 @@ public class AutoTrickObserver implements TrickObserver {
   public void newTrick(Position position) {
     log.info("newTrick(%s)", position);
     trick.clear();
+  }
+
+  public void gameStarts(Game announcedGame, Level announcedLevel,
+      Set<Card> allCards) {
+    this.cards = Sets.newHashSet(allCards);
+    this.game = announcedGame;
+    this.level = announcedLevel;
+    log.info("the game %s is on at %s with %s", game, level, cards);
   }
 }

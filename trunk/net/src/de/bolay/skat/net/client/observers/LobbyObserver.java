@@ -2,7 +2,7 @@ package de.bolay.skat.net.client.observers;
 
 import de.bolay.pubsub.Observer;
 
-public interface LobbyObserver extends Observer{
+public interface LobbyObserver extends Observer {
   public interface Lobby {
     void sendChatMessage(String text);
   }

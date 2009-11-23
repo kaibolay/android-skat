@@ -4,10 +4,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class Bids {
-  private  int current;
+  private int current;
 
   public Bids() {
-      current = first();
+    current = first();
   }
 
   public int current() {

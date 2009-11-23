@@ -5,5 +5,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Google Collections"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JSR-305"/>
+	<classpathentry kind="lib" path="/JSR-305/target/classes"/>
+	<classpathentry kind="lib" path="/third-party/google-collect-1.0-rc4/google-collect-1.0-rc4.jar" sourcepath="/Users/kbolay/Documents/workspace/third-party/google-collect-1.0-rc4/src-1.0-rc4.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
