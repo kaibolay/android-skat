@@ -6,21 +6,21 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
-import com.sun.istack.internal.Nullable;
-
-import de.bolay.skat.Card.Rank;
-import de.bolay.skat.Card.Suit;
-
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import org.junit.Test;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
+import de.bolay.skat.Card.Rank;
+import de.bolay.skat.Card.Suit;
 
 public class GameTest {
   private void assertSymmetric(Comparator<Card> comp) {

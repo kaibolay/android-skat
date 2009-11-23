@@ -5,6 +5,7 @@ import java.util.Set;
 import de.bolay.pubsub.Observer;
 import de.bolay.skat.Card;
 import de.bolay.skat.Game;
+import de.bolay.skat.Level;
 import de.bolay.skat.Position;
 
 public interface TrickObserver extends Observer {
@@ -12,7 +13,7 @@ public interface TrickObserver extends Observer {
     void playCard(Card card);
   }
 
-  void gameStarts(Game newGame, Set<Card> cards);
+  void gameStarts(Game announcedGame, Level announcedLevel, Set<Card> cards);
 
   void newTrick(Position position);
   void cardPlayed(String playerName, Card card);

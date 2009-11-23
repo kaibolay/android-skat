@@ -1,12 +1,12 @@
 package de.bolay.skat.net.client.observers;
 
+import java.util.Set;
+
 import de.bolay.skat.Card;
 import de.bolay.skat.Game;
 import de.bolay.skat.Level;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.Ranking;
-
-import java.util.Set;
 
 public abstract class AutisticObserverFactory implements ObserverFactory {
 
@@ -68,9 +68,8 @@ public abstract class AutisticObserverFactory implements ObserverFactory {
       @Override public void cardPlayed(String playerName, Card card) {}
       @Override public void cardSolicited(Turn yourTurn) {}
       @Override public void gameOver(boolean won, int point, int score) {}
-      @Override public void gameStarts(Game newGame, Set<Card> cards) {}
+      @Override public void gameStarts(Game announcedGame, Level announcedLevel, Set<Card> cards) {}
       @Override public void newTrick(Position position) {}
     };
   }
-
 }

@@ -1,5 +1,11 @@
 package de.bolay.skat.net.auto;
 
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -10,10 +16,6 @@ import de.bolay.skat.Level;
 import de.bolay.skat.Position;
 import de.bolay.skat.net.client.observers.BiddingObserver;
 
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
 public class AutoBiddingObserver implements BiddingObserver {
   private final Logger log;
   private final Random random = new Random();
@@ -22,7 +24,7 @@ public class AutoBiddingObserver implements BiddingObserver {
   private Set<Card> cards;
 
   public AutoBiddingObserver(Logger.Factory logFactory, String playerName,
-      /* Nullable */ RoundCompletedObserver roundCompletedObserver) {
+      @Nullable RoundCompletedObserver roundCompletedObserver) {
     log = logFactory.getLogger(AutoBiddingObserver.class.getName()
         + " for " + playerName);
     this.roundCompletedObserver = roundCompletedObserver;
@@ -48,7 +50,7 @@ public class AutoBiddingObserver implements BiddingObserver {
     }
   }
 
-  public void biddingEnded(/* Nullable */ String soloPlayer) {
+  public void biddingEnded(@Nullable String soloPlayer) {
     log.info("biddingEnded(\"%s\")", soloPlayer);
     if (soloPlayer == null) {
       // all passed
