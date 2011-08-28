@@ -17,7 +17,6 @@ public class AutoLobbyObserver {
   private Set<String> players = new HashSet<String>();
   private int playersJoined;
   private int playersLeft;
-  private int serverNotificationsReceived;
 
   public AutoLobbyObserver(Logger log, int maxPopulation) {
     this.log = log;
@@ -61,6 +60,5 @@ public class AutoLobbyObserver {
 
   public void serverNotificationReceived(String html) {
     log.info("serverNotificationReceived(\"%s\")", html);
-    serverNotificationsReceived++;
   }
 }

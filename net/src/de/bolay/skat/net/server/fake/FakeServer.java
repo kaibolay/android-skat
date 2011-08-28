@@ -63,8 +63,7 @@ public class FakeServer implements ServerConnection, Runnable {
     return (observerFactory != null);
   }
 
-  public synchronized void open(
-      @SuppressWarnings("hiding") ObserverFactory observerFactory) {
+  public synchronized void open(ObserverFactory observerFactory) {
     if (isUp()) {
       throw new IllegalStateException("FakeServer connection is already open");
     }
