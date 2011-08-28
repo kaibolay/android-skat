@@ -9,9 +9,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 
-import com.skatonline.client.Server;
-import com.skatonline.client.ServerConnectionImpl;
-
 import de.bolay.log.AndroidLogger;
 import de.bolay.log.Logger;
 import de.bolay.skat.net.Ranking;
@@ -20,21 +17,23 @@ import de.bolay.skat.net.client.observers.ConnectionObserver;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
 import de.bolay.skat.net.client.observers.PendingLoginObserver.LoginStatus;
 import de.bolay.skat.net.client.observers.PendingLoginObserver.PendingLogin;
+import de.bolay.skat.net.server.ServerConnection;
+import de.bolay.skat.net.server.fake.FakeServer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServerConnection extends Service {
+public class ServerConnectionService extends Service {
   private static final Logger.Factory LOG_FACTORY =
       new AndroidLogger.Factory();
   private static final Logger LOG = LOG_FACTORY.getLogger(
-      ServerConnection.class.getSimpleName());
+      ServerConnectionService.class.getSimpleName());
   public static final String LOGIN = "LOGIN";
 
   private volatile Looper connectionLooper;
   private volatile ServiceHandler connectionHandler;
 
-  public de.bolay.skat.net.server.ServerConnection connection;
+  public ServerConnection connection;
 
   public String username;
   public String password;
@@ -118,8 +117,7 @@ public class ServerConnection extends Service {
 
   @Override
   public void onCreate() {
-    connection = ServerConnectionImpl.getConnection(
-        LOG_FACTORY, Server.PREMIUM);
+    connection = new FakeServer(LOG_FACTORY);
     connection.open(new AutisticObserverFactory() {
       @Override public ConnectionObserver createConnectionObserver() {
         return new SimpleConnectionObserver();
