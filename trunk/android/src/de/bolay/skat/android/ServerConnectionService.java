@@ -1,5 +1,8 @@
 package de.bolay.skat.android;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,20 +11,14 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-
 import de.bolay.log.AndroidLogger;
 import de.bolay.log.Logger;
 import de.bolay.skat.net.Ranking;
 import de.bolay.skat.net.client.observers.AutisticObserverFactory;
 import de.bolay.skat.net.client.observers.ConnectionObserver;
 import de.bolay.skat.net.client.observers.MainLobbyObserver;
-import de.bolay.skat.net.client.observers.PendingLoginObserver.LoginStatus;
-import de.bolay.skat.net.client.observers.PendingLoginObserver.PendingLogin;
 import de.bolay.skat.net.server.ServerConnection;
 import de.bolay.skat.net.server.fake.FakeServer;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ServerConnectionService extends Service {
   private static final Logger.Factory LOG_FACTORY =
@@ -39,33 +36,15 @@ public class ServerConnectionService extends Service {
   public String password;
 
   private class SimpleConnectionObserver implements ConnectionObserver {
-    @SuppressWarnings("hiding")
     private final Logger LOG = LOG_FACTORY.getLogger(
         ConnectionObserver.class.getSimpleName());
-
-    Ranking myRanking;
 
     public void disconnected() {
       LOG.info("disconnected()");
     }
-
-    public void loginAttempted(LoginStatus status) {
-      LOG.info("loginAttempted(%s)", status);
-    }
-
-    public void rankingReceived(Ranking ranking) {
-      LOG.info("rankingReceived(%s)", ranking);
-      myRanking = ranking;
-    }
-
-    public void pendingLogin(PendingLogin pendingLogin) {
-      pendingLogin.attemptLogin(username, password);
-      LOG.info("sent pendingLogin");
-    }
   }
 
   private static class SimpleMainLobbyObserver implements MainLobbyObserver {
-    @SuppressWarnings("hiding")
     private final Logger LOG = LOG_FACTORY.getLogger(
         SimpleMainLobbyObserver.class.getSimpleName());
 
@@ -96,7 +75,6 @@ public class ServerConnectionService extends Service {
   }
 
   private final class ServiceHandler extends Handler {
-    @SuppressWarnings("hiding")
     private final Logger LOG = LOG_FACTORY.getLogger(
         ServiceHandler.class.getSimpleName());
 
