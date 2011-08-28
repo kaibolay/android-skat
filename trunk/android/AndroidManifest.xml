@@ -8,7 +8,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    <service android:name="ServerConnection"></service>
+    <service android:name=".ServerConnectionService"></service>
 </application>
 
 <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.INTERNET"></uses-permission>

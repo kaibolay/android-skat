@@ -24,8 +24,8 @@ public class Skat extends Activity {
           .getText().toString();
       String password = ((EditText) findViewById(R.id.password_field))
           .getText().toString();
-      Intent loginData = new Intent(Skat.this, ServerConnection.class)
-          .setAction(ServerConnection.LOGIN)
+      Intent loginData = new Intent(Skat.this, ServerConnectionService.class)
+          .setAction(ServerConnectionService.LOGIN)
           .putExtra("username", username)
           .putExtra("password", password);
       startService(loginData);
