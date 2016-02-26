@@ -1,0 +1,1 @@
+A client to play the popular three-player card game online with your mobile phone.
